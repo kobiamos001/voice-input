@@ -8,13 +8,11 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!--
-    <queries>
-        <intent>
-            <action android:name="android.speech.RecognitionService" />
-        </intent>
-    </queries>
-    -->
+    <!-- הרשאה להצגת כפתור צף מעל אפליקציות אחרות -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- הרשאות לשירות קדמה מבוסס מיקרופון (אנדרואיד 14 ומעלה) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
     <application
         android:allowBackup="false"
@@ -28,6 +26,7 @@
         android:name=".CrashLoggingApplication"
         android:largeHeap="true"
         tools:targetApi="31" >
+
         <activity
             android:name=".RecognizeActivity"
             android:exported="true"
@@ -44,6 +43,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".settings.SettingsActivity"
             android:exported="true"
@@ -52,6 +52,18 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- האקטיביטי החדש להפעלת העוזר הקולי ממסך הבית -->
+        <activity
+            android:name=".ToggleAssistantActivity"
+            android:exported="true"
+            android:label="הפעל עוזר קולי"
+            android:theme="@style/Theme.WhisperVoiceInput">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -103,6 +115,7 @@
             </intent-filter>
         </activity>
 
+        <!-- שירות המקלדת המקורית -->
         <service
             android:name=".VoiceInputMethodService"
             android:exported="true"
@@ -114,6 +127,13 @@
             </intent-filter>
             <meta-data android:name="android.view.im" android:resource="@xml/input_method" />
         </service>
+
+        <!-- שירות העוזר הקולי הצף החדש (מוגדר כעת כשירות קדמה עם גישת מיקרופון קבועה) -->
+        <service
+            android:name=".FloatingAssistantService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
 
         <service
             android:name=".updates.UpdateCheckingService"
@@ -142,25 +162,6 @@
             </intent-filter>
         </service>
 
-        <!--
-        <service
-            android:name=".WhisperRecognizerService"
-            android:exported="true"
-            android:foregroundServiceType="microphone"
-            android:icon="@drawable/ic_launcher_foreground"
-            android:label="whisperrecognitionservice"
-            android:permission="android.permission.RECORD_AUDIO" >
-            <intent-filter>
-                <action android:name="android.speech.RecognitionService" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.speech"
-                android:resource="@xml/recognition_service" />
-        </service>
-        -->
     </application>
 
 </manifest>

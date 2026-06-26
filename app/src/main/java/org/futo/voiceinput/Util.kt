@@ -94,14 +94,8 @@ fun Context.fileNeedsDownloading(file: String): Boolean {
 }
 
 fun Context.modelNeedsDownloading(model: ModelData): Boolean {
-    if(model.ggml.is_builtin_asset) return false
-
-    // Skip download if all legacy files are present
-    if(!fileNeedsDownloading(model.legacy.decoder_file) && !fileNeedsDownloading(model.legacy.encoder_xatn_file) && !fileNeedsDownloading(model.legacy.vocab_file)) {
-        return false
-    }
-
-    return fileNeedsDownloading(model.ggml.ggml_file)
+    // כפיית מצב אופליין מוחלט - המודל כבר ארוז בתוך האפליקציה בתיקיית ml
+    return false
 }
 
 fun Context.isUsingTfliteLegacy(): Boolean {
@@ -322,7 +316,7 @@ val ENGLISH_MODELS = listOf(
         )
     ),
 
-)
+    )
 
 
 val MULTILINGUAL_MODELS = listOf(
@@ -330,9 +324,9 @@ val MULTILINGUAL_MODELS = listOf(
         name = "Multilingual-39 (less accurate)",
 
         ggml = ModelDataGGML(
-        is_builtin_asset = false,
-        ggml_file = "tiny_acft_q8_0.bin",
-        digest = "07aa4d514144deacf5ffec5cacb36c93dee272fda9e64ac33a801f8cd5cbd953"
+            is_builtin_asset = false,
+            ggml_file = "tiny_acft_q8_0.bin",
+            digest = "07aa4d514144deacf5ffec5cacb36c93dee272fda9e64ac33a801f8cd5cbd953"
         ),
 
         legacy = ModelDataLegacy(
@@ -380,9 +374,9 @@ val MULTILINGUAL_MODELS = listOf(
         name = "Multilingual-244 (slow)",
 
         ggml = ModelDataGGML(
-        is_builtin_asset = false,
-        ggml_file = "small_acft_q8_0.bin",
-        digest = "15ef255465a6dc582ecf1ec651a4618c7ee2c18c05570bbe46493d248d465ac4"
+            is_builtin_asset = false,
+            ggml_file = "small_acft_q8_0.bin",
+            digest = "15ef255465a6dc582ecf1ec651a4618c7ee2c18c05570bbe46493d248d465ac4"
         ),
 
         legacy = ModelDataLegacy(

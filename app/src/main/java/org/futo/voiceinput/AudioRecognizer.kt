@@ -59,6 +59,9 @@ abstract class AudioRecognizer {
     private var isRecording = false
     private var recorder: AudioRecord? = null
 
+    // משתנה למעקב האם המשתמש באמת דיבר (מונע הזיות בשקט מוחלט)
+    var hasUserTalked = false
+
     fun isCurrentlyRecording(): Boolean {
         return isRecording
     }
@@ -301,6 +304,7 @@ abstract class AudioRecognizer {
             throw IllegalStateException("Start recording when already recording")
         }
 
+        hasUserTalked = false // איפוס המשתנה בכל הפעלה מחדש
         isVADPaused = false
 
         try {
@@ -365,7 +369,7 @@ abstract class AudioRecognizer {
                         .build()
 
                     val shouldUseVad = context.getSetting(IS_VAD_ENABLED)
-                    
+
                     val vadSampleBuffer = ShortBuffer.allocate(480)
                     var numConsecutiveNonSpeech = 0
                     var numConsecutiveSpeech = 0
@@ -428,7 +432,10 @@ abstract class AudioRecognizer {
 
                         val rms = sqrt(samples.sumOf { ((it.toFloat() / Short.MAX_VALUE.toFloat()).pow(2)).toDouble() } / samples.size).toFloat()
 
-                        if(startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) hasTalked = true
+                        if(startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
+                            hasTalked = true
+                            this@AudioRecognizer.hasUserTalked = true // זיהוי דיבור משתמש אמיתי
+                        }
 
                         if(rms > 0.0001){
                             anyNoiseAtAll = true

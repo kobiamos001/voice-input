@@ -3,7 +3,10 @@ package org.futo.voiceinput
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -40,7 +43,6 @@ import org.futo.voiceinput.migration.scheduleModelMigrationJob
 import org.futo.voiceinput.settings.pages.ConditionalUnpaidNoticeInVoiceInputWindow
 import org.futo.voiceinput.theme.UixThemeAuto
 import org.futo.voiceinput.updates.scheduleUpdateCheckingJob
-
 
 @Composable
 fun RecognizeWindow(forceNoUnpaidNotice: Boolean = false, allowClick: Boolean = false, onClose: (() -> Unit)?, onPauseVAD: (Boolean) -> Unit = { }, onFinish: () -> Unit = { }, content: @Composable ColumnScope.() -> Unit) {
@@ -152,7 +154,7 @@ class RecognizeActivity : ComponentActivity() {
         }
 
         override fun decodingStarted() {
-            
+
         }
 
         @Composable
@@ -162,6 +164,7 @@ class RecognizeActivity : ComponentActivity() {
             }
         }
     }
+
     private fun onCancel() {
         setResult(RESULT_CANCELED, null)
         finish()
@@ -169,6 +172,25 @@ class RecognizeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // בדיקה: אם האקטיביטי הופעל עם פקודה ייעודית להפעלת העוזר הצף
+        if (intent?.action == "org.futo.voiceinput.START_ASSISTANT") {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+                // בקשת הרשאה להצגת חלון צף
+                val overlayIntent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+                startActivity(overlayIntent)
+            } else {
+                // הרשאה קיימת - הפעלת השירות הצף
+                startService(Intent(this, FloatingAssistantService::class.java))
+            }
+            finish() // סגירת האקטיביטי הנוכחי כדי לחזור למסך הבית
+            return
+        }
+
+        // התנהגות מקורית (עבור מקלדת או קריאה חיצונית לזיהוי דיבור)
         recognizer.reset()
         recognizer.init()
         scheduleUpdateCheckingJob(applicationContext)
@@ -178,7 +200,6 @@ class RecognizeActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
         recognizer.reset()
     }
 
@@ -189,13 +210,13 @@ class RecognizeActivity : ComponentActivity() {
             recognizer.permissionResultRejected()
         }
     }
+
     private fun requestPermission() {
         permission.launch(Manifest.permission.RECORD_AUDIO)
     }
 
     private fun sendResult(result: String) {
         val returnIntent = Intent()
-
         val results = listOf(result)
         returnIntent.putStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS, ArrayList(results))
         returnIntent.putExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES, floatArrayOf(1.0f))

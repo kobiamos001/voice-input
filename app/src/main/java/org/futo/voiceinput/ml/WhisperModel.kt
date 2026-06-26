@@ -64,10 +64,23 @@ private fun loadMappedFile(context: Context, filePath: String): MappedByteBuffer
 
 @Throws(IOException::class)
 fun loadGGMLModel(context: Context, model: ModelData, onPartialDecode: (String) -> Unit): WhisperGGML {
-    val modelBuffer = if(model.ggml.is_builtin_asset) {
-        loadMappedFile(context, model.ggml.ggml_file)
-    } else {
-        context.tryOpenDownloadedModel(model.ggml.ggml_file)
+    // טעינת המודל החדש עם סיומת עוקפת כיווץ ישירות משורש תיקיית ה-assets
+    val modelBuffer = try {
+        Log.d("WhisperModel", "Attempting to load base_acft_q8_0.bin.not.tflite from assets")
+        loadMappedFile(context, "base_acft_q8_0.bin.not.tflite")
+    } catch (e: Exception) {
+        // מניעת קריסה במקרה של שגיאה: ננסה לטעון את קובץ הגיבוי המקורי כ-Fallback
+        Log.e("WhisperModel", "CRITICAL ERROR: Failed to load base_acft_q8_0.bin.not.tflite from assets!", e)
+        try {
+            if(model.ggml.is_builtin_asset) {
+                loadMappedFile(context, model.ggml.ggml_file)
+            } else {
+                context.tryOpenDownloadedModel(model.ggml.ggml_file)
+            }
+        } catch (fallbackException: Exception) {
+            Log.e("WhisperModel", "Fallback model loading failed as well", fallbackException)
+            throw fallbackException
+        }
     }
 
     return WhisperGGML(modelBuffer, onPartialDecode)
@@ -75,10 +88,10 @@ fun loadGGMLModel(context: Context, model: ModelData, onPartialDecode: (String) 
 
 private fun openMigrationIfModelIsLegacy(context: Context, model: ModelData) {
     if(listOf(
-        model.legacy.encoder_xatn_file,
-        model.legacy.decoder_file,
-        model.legacy.vocab_file
-    ).all { File(context.filesDir, it).exists() }) {
+            model.legacy.encoder_xatn_file,
+            model.legacy.decoder_file,
+            model.legacy.vocab_file
+        ).all { File(context.filesDir, it).exists() }) {
         // We are in the legacy model workflow, which is no longer supported
         // Immediately open the migration menu
         val intent = Intent(context, MigrationActivity::class.java)

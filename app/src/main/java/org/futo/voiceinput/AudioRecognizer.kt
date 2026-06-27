@@ -60,7 +60,7 @@ abstract class AudioRecognizer {
     private var recorder: AudioRecord? = null
 
     // משתנה למעקב האם המשתמש באמת דיבר (מונע הזיות בשקט מוחלט)
-    var hasUserTalked = false
+    var hasUserTalked = false 
 
     fun isCurrentlyRecording(): Boolean {
         return isRecording
@@ -153,7 +153,9 @@ abstract class AudioRecognizer {
             )
         )
         myAppSettings.addCategory(Intent.CATEGORY_DEFAULT)
-        myAppSettings.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        myAppSettings.flags = Intent.FLAG_ACTIVITY_NEW_TASK(
+            
+        )
         context.startActivity(myAppSettings)
 
         cancelRecognizer()
@@ -223,8 +225,14 @@ abstract class AudioRecognizer {
         try {
             val englishModelIdx = context.getSetting(ENGLISH_MODEL_INDEX)
             val multilingualModelIdx = context.getSetting(MULTILINGUAL_MODEL_INDEX)
-            val languages = context.getSetting(LANGUAGE_TOGGLES)
-            val isMultilingual = context.getSetting(ENABLE_MULTILINGUAL)
+            
+            // הגדרת עקיפת שפה ברירת מחדל לעברית
+            var languages = context.getSetting(LANGUAGE_TOGGLES)
+            if (languages.isEmpty() || (languages.size == 1 && languages.contains("en"))) {
+                languages = setOf("he")
+            }
+
+            val isMultilingual = context.getSetting(ENABLE_MULTILINGUAL) || languages.contains("he")
 
             if (forcedLanguage != null) {
                 tryLoadModelOrCancel(
@@ -369,7 +377,7 @@ abstract class AudioRecognizer {
                         .build()
 
                     val shouldUseVad = context.getSetting(IS_VAD_ENABLED)
-
+                    
                     val vadSampleBuffer = ShortBuffer.allocate(480)
                     var numConsecutiveNonSpeech = 0
                     var numConsecutiveSpeech = 0

@@ -398,8 +398,9 @@ val MULTILINGUAL_MODELS = listOf(
 )
 
 suspend fun Context.getLanguageModelMap(): Map<String, ModelData> {
-    val modelIdx = getSetting(MULTILINGUAL_MODEL_INDEX)
-    val englishModelIdx = getSetting(ENGLISH_MODEL_INDEX)
+    // כפיית מודל 74 רב-לשוני (אינדקס 1)
+    val modelIdx = 1 
+    val englishModelIdx = 0
     val useLanguageSpecificModels = getSetting(USE_LANGUAGE_SPECIFIC_MODELS)
     val manuallySelectLanguage = getSetting(MANUALLY_SELECT_LANGUAGE)
     

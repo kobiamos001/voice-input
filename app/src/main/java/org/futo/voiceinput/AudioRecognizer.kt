@@ -221,8 +221,9 @@ abstract class AudioRecognizer {
 
     private suspend fun loadModelInner() {
         try {
-            val englishModelIdx = context.getSetting(ENGLISH_MODEL_INDEX)
-            val multilingualModelIdx = context.getSetting(MULTILINGUAL_MODEL_INDEX)
+            // כפיית מודל 74 רב-לשוני (אינדקס 1) ואנגלית (אינדקס 0) כברירת מחדל
+            val englishModelIdx = 0
+            val multilingualModelIdx = 1
             
             // הגדרת עקיפת שפה ברירת מחדל לעברית
             var languages = context.getSetting(LANGUAGE_TOGGLES)
@@ -230,7 +231,8 @@ abstract class AudioRecognizer {
                 languages = setOf("he")
             }
 
-            val isMultilingual = context.getSetting(ENABLE_MULTILINGUAL) || languages.contains("he")
+            // כפיית מצב רב-לשוני (עברית)
+            val isMultilingual = true
 
             if (forcedLanguage != null) {
                 tryLoadModelOrCancel(

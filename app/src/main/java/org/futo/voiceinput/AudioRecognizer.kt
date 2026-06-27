@@ -153,9 +153,7 @@ abstract class AudioRecognizer {
             )
         )
         myAppSettings.addCategory(Intent.CATEGORY_DEFAULT)
-        myAppSettings.flags = Intent.FLAG_ACTIVITY_NEW_TASK(
-            
-        )
+        myAppSettings.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(myAppSettings)
 
         cancelRecognizer()

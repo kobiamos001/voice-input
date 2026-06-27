@@ -316,7 +316,7 @@ val ENGLISH_MODELS = listOf(
         )
     ),
 
-    )
+)
 
 
 val MULTILINGUAL_MODELS = listOf(
@@ -324,9 +324,9 @@ val MULTILINGUAL_MODELS = listOf(
         name = "Multilingual-39 (less accurate)",
 
         ggml = ModelDataGGML(
-            is_builtin_asset = false,
-            ggml_file = "tiny_acft_q8_0.bin",
-            digest = "07aa4d514144deacf5ffec5cacb36c93dee272fda9e64ac33a801f8cd5cbd953"
+        is_builtin_asset = false,
+        ggml_file = "tiny_acft_q8_0.bin",
+        digest = "07aa4d514144deacf5ffec5cacb36c93dee272fda9e64ac33a801f8cd5cbd953"
         ),
 
         legacy = ModelDataLegacy(
@@ -374,9 +374,9 @@ val MULTILINGUAL_MODELS = listOf(
         name = "Multilingual-244 (slow)",
 
         ggml = ModelDataGGML(
-            is_builtin_asset = false,
-            ggml_file = "small_acft_q8_0.bin",
-            digest = "15ef255465a6dc582ecf1ec651a4618c7ee2c18c05570bbe46493d248d465ac4"
+        is_builtin_asset = false,
+        ggml_file = "small_acft_q8_0.bin",
+        digest = "15ef255465a6dc582ecf1ec651a4618c7ee2c18c05570bbe46493d248d465ac4"
         ),
 
         legacy = ModelDataLegacy(
@@ -402,7 +402,12 @@ suspend fun Context.getLanguageModelMap(): Map<String, ModelData> {
     val englishModelIdx = getSetting(ENGLISH_MODEL_INDEX)
     val useLanguageSpecificModels = getSetting(USE_LANGUAGE_SPECIFIC_MODELS)
     val manuallySelectLanguage = getSetting(MANUALLY_SELECT_LANGUAGE)
-    val languages = getSetting(LANGUAGE_TOGGLES)
+    
+    // אכיפת עברית כברירת מחדל אם מסד הנתונים מכיל אנגלית בלבד (הפעלה ראשונה)
+    var languages = getSetting(LANGUAGE_TOGGLES)
+    if (languages.isEmpty() || (languages.size == 1 && languages.contains("en"))) {
+        languages = setOf("he")
+    }
 
     val map = hashMapOf<String, ModelData>()
     languages.forEach {

@@ -2,6 +2,8 @@ package org.futo.voiceinput
 
 import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.futo.voiceinput.ml.RunState
 
 class AssistantRecognizer(
@@ -40,11 +42,14 @@ class AssistantRecognizer(
         reset()
         onStateChanged(State.IDLE)
 
-        // במצב עוזר חכם: אנו מאתחלים מיד את הלולאה וממשיכים להאזין ברקע ברציפות
+        // במצב עוזר חכם: הפעלה מחדש רציפה של לולאת ההאזנה עם השהיית חומרה בטוחה
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
         if (isSmartMode && FloatingAssistantService.isRunning) {
-            create()
+            lifecycleScope.launch {
+                delay(350L) // השהיית שחרור חומרה למניעת נעילת מיקרופון באנדרואיד
+                create()
+            }
         }
     }
 
@@ -52,11 +57,14 @@ class AssistantRecognizer(
         reset()
         onStateChanged(State.IDLE)
 
-        // במצב עוזר חכם: אתחול מחדש גם במקרה של ביטול (או שקט)
+        // במצב עוזר חכם: הפעלה מחדש גם במקרה של שקט/ביטול עם השהיית חומרה בטוחה
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
         if (isSmartMode && FloatingAssistantService.isRunning) {
-            create()
+            lifecycleScope.launch {
+                delay(350L) // השהיית שחרור חומרה למניעת נעילת מיקרופון באנדרואיד
+                create()
+            }
         }
     }
 

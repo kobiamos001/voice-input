@@ -1,5 +1,6 @@
 package org.futo.voiceinput.settings.pages
 
+import android.content.Context
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import org.futo.voiceinput.settings.Tip
 import org.futo.voiceinput.settings.useDataStore
 import org.futo.voiceinput.startModelDownloadActivity
 
+
 @Composable
 fun LanguageToggle(
     id: String,
@@ -35,15 +37,19 @@ fun LanguageToggle(
     setLanguages: (Set<String>) -> Job,
     subtitle: String?
 ) {
-    val disabled = true // חסימת האפשרות לבטל את השפה היחידה שנשארה
+    val disabled = languages.contains(id) && languages.size == 1
 
     SettingToggleRaw(
         name,
         languages.contains(id),
         {
-            setLanguages(setOf("he"))
+            setLanguages((languages.filter { it != id } + if (it) {
+                listOf(id)
+            } else {
+                listOf()
+            }).toSet())
         },
-        subtitle = subtitle,
+        subtitle = if(disabled) { stringResource(R.string.only_language_enabled) } else { subtitle },
         disabled = disabled
     )
 }
@@ -60,22 +66,33 @@ fun LanguagesScreen(
     val context = LocalContext.current
 
     LaunchedEffect(listOf(multilingualModelIndex, multilingual)) {
-        if (!multilingual) {
-            setMultilingual(true)
+        if (multilingual) {
+            context.startModelDownloadActivity(listOf(MULTILINGUAL_MODELS[multilingualModelIndex]))
         }
-        context.startModelDownloadActivity(listOf(MULTILINGUAL_MODELS[multilingualModelIndex]))
     }
 
     LaunchedEffect(languages) {
-        // כפייה מוחלטת של השפה העברית בלבד במסד הנתונים
-        if (languages.size != 1 || !languages.contains("he")) {
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        
+        if (languages.size == 1 && languages.contains("en")) {
+            // המשתמש בחר ידנית באנגלית בלבד
+            prefs.edit().putBoolean("user_chose_english", true).apply()
+        } else if (languages.contains("he")) {
+            // המשתמש בחר עברית
+            prefs.edit().putBoolean("user_chose_hebrew", true).apply()
+        }
+
+        // הפעלה ראשונית: אם ההגדרות ריקות או מכילות אנגלית בלבד (של היצרן המקורי) - נגדיר עברית
+        if (languages.isEmpty() || (languages.size == 1 && languages.contains("en") && !Settings.canDrawOverlays(context))) {
             setLanguages(setOf("he"))
         }
-        if (!multilingual) setMultilingual(true)
+
+        val newMultilingual = languages.count { it != "en" } > 0
+        if (multilingual != newMultilingual) setMultilingual(newMultilingual)
     }
 
-    // סינון הרשימה כך שתכיל עברית בלבד
-    val filteredLanguages = LANGUAGE_LIST.filter { it.id == "he" }
+    // הצגת עברית ואנגלית בלבד ברשימה
+    val filteredLanguages = LANGUAGE_LIST.filter { it.id == "he" || it.id == "en" }
 
     SettingListLazy {
         item {
@@ -83,13 +100,20 @@ fun LanguagesScreen(
         }
 
         item {
-            Tip("ההקלדה הקולית מוגדרת כעת לזהות עברית בלבד באופן קבוע.")
+            Tip(stringResource(R.string.language_tip_1))
             Spacer(modifier = Modifier.height(16.dp))
         }
 
         items(filteredLanguages.size) {
             val language = filteredLanguages[it]
-            LanguageToggle(language.id, language.name, languages, setLanguages, "עברית (פעילה תמיד)")
+
+            val subtitle = if (language.id == "he") {
+                "עברית (ברירת מחדל)"
+            } else {
+                stringResource(R.string.trained_on_x_hours, language.trainedHourCount)
+            }
+
+            LanguageToggle(language.id, language.name, languages, setLanguages, subtitle)
         }
     }
 }

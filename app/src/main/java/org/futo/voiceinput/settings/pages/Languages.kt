@@ -37,15 +37,21 @@ fun LanguageToggle(
     setLanguages: (Set<String>) -> Job,
     subtitle: String?
 ) {
-    // מונע מהמשתמש לכבות את השפה הפעילה היחידה (חייבת להישאר תמיד לפחות שפה אחת פעילה)
     val disabled = languages.contains(id) && languages.size == 1
+    val context = LocalContext.current
 
     SettingToggleRaw(
         name,
         languages.contains(id),
         { isChecked ->
             if (isChecked) {
-                // הדלקה של שפה זו תגדיר אותה כשפה הפעילה היחידה ותכבה את השניה
+                val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+                if (id == "en") {
+                    prefs.edit().putBoolean("user_chose_english", true).apply()
+                } else if (id == "he") {
+                    prefs.edit().putBoolean("user_chose_english", false).apply()
+                }
+                // הגדרת השפה הנבחרת
                 setLanguages(setOf(id))
             }
         },
@@ -73,19 +79,9 @@ fun LanguagesScreen(
 
     LaunchedEffect(languages) {
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
-        
-        // קריאת המצב הנוכחי של הדגל
-        var userChoseEnglish = prefs.getBoolean("user_chose_english", false)
+        val userChoseEnglish = prefs.getBoolean("user_chose_english", false)
 
-        if (languages.size == 1 && languages.contains("en")) {
-            prefs.edit().putBoolean("user_chose_english", true).apply()
-            userChoseEnglish = true // עדכון מקומי מיידי של המשתנה למניעת תחרות ריצה
-        } else if (languages.contains("he")) {
-            prefs.edit().putBoolean("user_chose_english", false).apply()
-            userChoseEnglish = false // עדכון מקומי מיידי של המשתנה למניעת תחרות ריצה
-        }
-
-        // כעת הבדיקה מתבצעת מול המצב המעודכן באותו הרגע
+        // אם ההגדרות מכילות אנגלית בלבד והמשתמש מעולם לא לחץ על אנגלית ידנית - נגדיר עברית
         if (languages.isEmpty() || (languages.size == 1 && languages.contains("en") && !userChoseEnglish)) {
             setLanguages(setOf("he"))
         }

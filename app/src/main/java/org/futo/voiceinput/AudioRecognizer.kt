@@ -323,8 +323,14 @@ abstract class AudioRecognizer {
     }
 
     private fun startRecording(numTries: Int = 0) {
+        // מניעת כפל הקלטות במצבי האזנה מהירים ברקע
         if (isRecording) {
-            throw IllegalStateException("Start recording when already recording")
+            try {
+                onFinishRecording()
+            } catch (e: Exception) {
+                reset()
+            }
+            return
         }
 
         hasUserTalked = false // איפוס המשתנה בכל הפעלה מחדש

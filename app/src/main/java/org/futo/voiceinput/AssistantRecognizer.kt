@@ -10,10 +10,6 @@ class AssistantRecognizer(
     private val onStateChanged: (State) -> Unit
 ) : AudioRecognizer() {
 
-    init {
-        forceLanguage("he")
-    }
-
     enum class State { IDLE, RECORDING, PROCESSING, FINISHED }
 
     override val context: Context get() = mContext
@@ -29,24 +25,16 @@ class AssistantRecognizer(
     override fun finished(result: String) {
         onStateChanged(State.FINISHED)
 
-        // סינון רעשים והזיות: אם המשתמש לא דיבר בפועל, או שהתוצאה קצרה מדי - נתעלם ממנה
-        if (!hasUserTalked || result.trim().length < 2) {
-            if (context is FloatingAssistantService) {
-                (context as FloatingAssistantService).updateLiveStatus("שקט זוהה")
-            }
-            reset()
-            onStateChanged(State.IDLE)
-            return
-        }
-
+        // שליחת הטקסט של הפעולה לעדכון חי על גבי הקפסולה
         if (context is FloatingAssistantService) {
             CommandParser.parseAndExecute(context, result) { statusMessage ->
                 (context as FloatingAssistantService).updateLiveStatus(statusMessage)
             }
         } else {
+            // גיבוי במידה ומופעל מחוץ לשירות
             CommandParser.parseAndExecute(context, result) {}
         }
-
+        
         reset()
         onStateChanged(State.IDLE)
     }

@@ -42,12 +42,12 @@ class AssistantRecognizer(
         reset()
         onStateChanged(State.IDLE)
 
-        // במצב עוזר חכם: הפעלה מחדש רציפה של לולאת ההאזנה עם השהיית חומרה בטוחה
+        // הפעלה מחדש במצב חכם - עם השהיית חומרה בטוחה של 350ms לשחרור המיקרופון
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
         if (isSmartMode && FloatingAssistantService.isRunning) {
             lifecycleScope.launch {
-                delay(350L) // השהיית שחרור חומרה למניעת נעילת מיקרופון באנדרואיד
+                delay(350L) // השהיית חומרה קריטית ליציבות האזנה רציפה
                 create()
             }
         }
@@ -57,12 +57,12 @@ class AssistantRecognizer(
         reset()
         onStateChanged(State.IDLE)
 
-        // במצב עוזר חכם: הפעלה מחדש גם במקרה של שקט/ביטול עם השהיית חומרה בטוחה
+        // הפעלה מחדש במצב חכם גם לאחר שקט/ביטול - עם השהיית חומרה בטוחה של 350ms
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
         if (isSmartMode && FloatingAssistantService.isRunning) {
             lifecycleScope.launch {
-                delay(350L) // השהיית שחרור חומרה למניעת נעילת מיקרופון באנדרואיד
+                delay(350L) // השהיית חומרה קריטית ליציבות האזנה רציפה
                 create()
             }
         }

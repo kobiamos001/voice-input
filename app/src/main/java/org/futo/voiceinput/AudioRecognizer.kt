@@ -474,8 +474,11 @@ abstract class AudioRecognizer {
 
                         val rms = sqrt(samples.sumOf { ((it.toFloat() / Short.MAX_VALUE.toFloat()).pow(2)).toDouble() } / samples.size).toFloat()
 
-                        // הגנת רעשי רקע (Sustained Speech Protection): הגדרת התחלת דיבור רק אם יש דיבור רציף של לפחות 300 מילישניות (3 פריימים)
-                        if(startSoundPassed && (numConsecutiveSpeech >= 3 || (rms > 0.03 && numConsecutiveSpeech >= 1))) {
+                        // סינון רעשים מחמיר לעוזר: דורש 500ms של דיבור רציף וסנן עוצמה של 0.05f
+                        val requiredConsecutiveSpeech = if (this@AudioRecognizer is AssistantRecognizer) 5 else 3
+                        val rmsThreshold = if (this@AudioRecognizer is AssistantRecognizer) 0.05f else 0.01f
+
+                        if(startSoundPassed && (numConsecutiveSpeech >= requiredConsecutiveSpeech || (rms > rmsThreshold && numConsecutiveSpeech >= 1))) {
                             hasTalked = true
                             this@AudioRecognizer.hasUserTalked = true // זיהוי דיבור משתמש אמיתי
                         }
@@ -586,7 +589,9 @@ abstract class AudioRecognizer {
             return runModel()
         }
 
-        model!!.close()
+        // השארת המודל טעון בזיכרון דרך קבע עבור העוזר הקולי למניעת שיהוי פענוח
+        if (this !is AssistantRecognizer) {
+            model!!.close()
         model = null
 
         lifecycleScope.launch {

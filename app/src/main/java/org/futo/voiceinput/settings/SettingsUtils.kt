@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -143,16 +144,17 @@ fun isServiceRunning(context: Context, className: String): Boolean {
     }
 }
 
-// כותרת קטנה בצבע כחול לחלוקה לקטגוריות
+// כותרת קטגוריה בעיצוב מודגש ומורחב
 @Composable
 fun SettingCategoryHeader(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.labelLarge,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 12.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         textAlign = TextAlign.Start
     )
 }
@@ -284,15 +286,12 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
     // שימוש בהגדרת ה-VAD ישירות במסך הבית
     val (isVadEnabled, setVadEnabled) = useDataStore(IS_VAD_ENABLED.key, default = IS_VAD_ENABLED.default)
 
-    // שליטה במצב העוזר החכם באמצעות SharedPreferences
-    val prefs = remember { context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE) }
-    var isSmartMode by remember { mutableStateOf(prefs.getBoolean("smart_assistant_mode", false)) }
-
-    // לוגיקת בחירת שפה וסינכרון מודלים ישירות במסך הבית
+    // שליטה במצב השפות והסנכרון של המודלים
     val (multilingual, setMultilingual) = useDataStore(ENABLE_MULTILINGUAL)
     val (multilingualModelIndex, _) = useDataStore(MULTILINGUAL_MODEL_INDEX)
     val (languages, setLanguages) = useDataStore(LANGUAGE_TOGGLES)
 
+    val prefs = remember { context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE) }
     var showLanguageDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(listOf(multilingualModelIndex, multilingual)) {
@@ -345,28 +344,6 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
         }
         item {
             ModernSettingToggle(
-                title = "מצב עוזר חכם",
-                subtitle = "האזנה רציפה ברקע וזיהוי פקודות בשפות שונות",
-                iconRes = R.drawable.ic_settings_suggest,
-                checked = isSmartMode,
-                onCheckedChange = { active ->
-                    isSmartMode = active
-                    prefs.edit().putBoolean("smart_assistant_mode", active).apply()
-                    
-                    if (isAssistantEnabled) {
-                        val intent = Intent().setClassName(context.packageName, serviceClass)
-                        context.stopService(intent)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            context.startForegroundService(intent)
-                        } else {
-                            context.startService(intent)
-                        }
-                    }
-                }
-            )
-        }
-        item {
-            ModernSettingToggle(
                 title = "הפעלת שירות עוזר קולי",
                 subtitle = "הפעלת לחצן צף או שירות רקע לגישה מהירה",
                 iconRes = R.drawable.ic_keyboard_voice,
@@ -374,7 +351,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                 onCheckedChange = { active ->
                     val intent = Intent().setClassName(context.packageName, serviceClass)
                     if (active) {
-                        if (!isSmartMode && !Settings.canDrawOverlays(context)) {
+                        if (!Settings.canDrawOverlays(context)) {
                             isAssistantEnabled = false
                             try {
                                 val overlayIntent = Intent(

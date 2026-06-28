@@ -39,14 +39,21 @@ class FloatingAssistantService : Service(), LifecycleOwner {
     private var floatingButton: ImageView? = null
     private var statusTextView: TextView? = null
     private var recognizer: AssistantRecognizer? = null
-
+    
     private val handler = Handler(Looper.getMainLooper())
 
     private val NOTIFICATION_ID = 888
     private val CHANNEL_ID = "FloatingAssistantChannel"
 
+    companion object {
+        // משתנה סטאטי למעקב האם שירות העוזר הקולי פעיל כעת
+        var isRunning = false
+    }
+
     override fun onCreate() {
         super.onCreate()
+        isRunning = true // הפעלת חיווי מצב ריצה
+        
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
 
@@ -141,7 +148,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             private var initialTouchX: Float = 0f
             private var initialTouchY: Float = 0f
             private var isDragging: Boolean = false
-            private val TOUCH_SLOP = 10 // סף רגישות גרירה בפיקסלים
+            private val TOUCH_SLOP = 10 
 
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 when (event.action) {
@@ -157,7 +164,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                         val deltaX = (event.rawX - initialTouchX).toInt()
                         val deltaY = (event.rawY - initialTouchY).toInt()
 
-                        // מעבר למצב גרירה רק אם המשתמש הזיז את האצבע מעבר לסף הרגישות
                         if (Math.abs(deltaX) > TOUCH_SLOP || Math.abs(deltaY) > TOUCH_SLOP) {
                             isDragging = true
                             params.x = initialX + deltaX
@@ -168,7 +174,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                     }
                     MotionEvent.ACTION_UP -> {
                         if (!isDragging) {
-                            // המשתמש ביצע לחיצה נקייה ללא גרירה משמעותית - מפעילים/מכבים את העוזר
                             toggleAssistant()
                         }
                         return true
@@ -243,6 +248,8 @@ class FloatingAssistantService : Service(), LifecycleOwner {
     }
 
     override fun onDestroy() {
+        isRunning = false // כיבוי חיווי מצב ריצה
+        
         handler.removeCallbacksAndMessages(null)
         recognizer?.reset()
         if (containerView != null) {

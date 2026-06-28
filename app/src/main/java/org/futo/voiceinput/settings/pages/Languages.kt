@@ -37,17 +37,17 @@ fun LanguageToggle(
     setLanguages: (Set<String>) -> Job,
     subtitle: String?
 ) {
+    // מונע מהמשתמש לכבות את השפה הפעילה היחידה (חייבת להישאר תמיד לפחות שפה אחת פעילה)
     val disabled = languages.contains(id) && languages.size == 1
 
     SettingToggleRaw(
         name,
         languages.contains(id),
-        {
-            setLanguages((languages.filter { it != id } + if (it) {
-                listOf(id)
-            } else {
-                listOf()
-            }).toSet())
+        { isChecked ->
+            if (isChecked) {
+                // הדלקה של שפה זו תגדיר אותה כשפה הפעילה היחידה ותכבה את השניה
+                setLanguages(setOf(id))
+            }
         },
         subtitle = if(disabled) { stringResource(R.string.only_language_enabled) } else { subtitle },
         disabled = disabled

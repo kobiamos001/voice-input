@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
@@ -45,27 +46,51 @@ class FloatingAssistantService : Service(), LifecycleOwner {
     private val NOTIFICATION_ID = 888
     private val CHANNEL_ID = "FloatingAssistantChannel"
 
+    private var wakeLock: PowerManager.WakeLock? = null
+
     companion object {
-        // משתנה סטאטי למעקב האם שירות העוזר הקולי פעיל כעת
         var isRunning = false
     }
 
     override fun onCreate() {
         super.onCreate()
-        isRunning = true // הפעלת חיווי מצב ריצה
+        isRunning = true 
         
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
+
+        // שמירה על ערנות המעבד גם כאשר המסך כבוי לצורך האזנה רציפה ברקע
+        try {
+            val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
+            wakeLock = pm?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Assistant:WakeLock")
+            wakeLock?.acquire()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         startServiceForeground()
 
         recognizer = AssistantRecognizer(this, this.lifecycleScope) { state ->
             updateUIByState(state)
         }
-        setupFloatingWidget()
+
+        // בדיקה האם מצב עוזר חכם פעיל
+        val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
+
+        if (isSmartMode) {
+            // במצב חכם אין צורך בלחצן צף, אנו מתחילים להאזין מיד ברקע
+            recognizer?.create()
+        } else {
+            // במצב רגיל אנו בונים את הלחצן הצף ומחכים ללחיצה
+            setupFloatingWidget()
+        }
     }
 
     private fun startServiceForeground() {
+        val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
@@ -76,9 +101,13 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             manager.createNotificationChannel(channel)
         }
 
+        // התאמת תוכן ההתראה לפי המצב הפעיל
+        val title = if (isSmartMode) "מצב עוזר חכם פעיל" else "העוזר הקולי פעיל"
+        val desc = if (isSmartMode) "האזנה רציפה ברקע באנרגיה נמוכה פעילה" else "לחצן המיקרופון הצף זמין על המסך"
+
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("העוזר הקולי פעיל")
-            .setContentText("לחצן המיקרופון הצף זמין על המסך")
+            .setContentTitle(title)
+            .setContentText(desc)
             .setSmallIcon(R.mipmap.ic_launcher)
             .build()
 
@@ -248,13 +277,23 @@ class FloatingAssistantService : Service(), LifecycleOwner {
     }
 
     override fun onDestroy() {
-        isRunning = false // כיבוי חיווי מצב ריצה
+        isRunning = false 
         
         handler.removeCallbacksAndMessages(null)
         recognizer?.reset()
         if (containerView != null) {
             windowManager.removeView(containerView)
         }
+
+        // שחרור ה-WakeLock בצורה מאובטחת בעת סגירת השירות
+        try {
+            if (wakeLock?.isHeld == true) {
+                wakeLock?.release()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         super.onDestroy()
     }

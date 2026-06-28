@@ -1,5 +1,6 @@
 package org.futo.voiceinput.settings
 
+import android.app.ActivityManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
@@ -44,7 +45,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.futo.voiceinput.R
 import org.futo.voiceinput.Status
-import org.futo.voiceinput.FloatingAssistantService
 import org.futo.voiceinput.payments.BillingManager
 import org.futo.voiceinput.settings.pages.AdvancedScreen
 import org.futo.voiceinput.settings.pages.CreditsScreen
@@ -58,6 +58,9 @@ import org.futo.voiceinput.settings.pages.PaymentScreen
 import org.futo.voiceinput.settings.pages.PaymentThankYouScreen
 import org.futo.voiceinput.settings.pages.TestScreen
 import org.futo.voiceinput.settings.pages.ThemeScreen
+
+// ייבוא של ה-SettingLink מתת-החבילה של הדפים
+import org.futo.voiceinput.settings.pages.SettingLink
 
 
 data class SettingsUiState(
@@ -112,7 +115,24 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
     }
 }
 
-// מעטפת נקייה, יציבה וחסינת-שגיאות המקשרת ישירות ל-SettingLink המקורי של FUTO
+// פונקציית עזר הבודקת האם שירות פעיל לפי שם המחלקה כמחרוזת טקסט בלבד (מונע קריסות Classloader)
+fun isServiceRunning(context: Context, className: String): Boolean {
+    return try {
+        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+        @Suppress("DEPRECATION")
+        val services = am?.getRunningServices(100) ?: return false
+        for (info in services) {
+            if (info.service.className == className) {
+                return true
+            }
+        }
+        false
+    } catch (e: Exception) {
+        false
+    }
+}
+
+// מעטפת נקייה המקשרת ישירות ל-SettingLink המקורי של FUTO
 @Composable
 fun SettingLink(
     title: String,
@@ -128,7 +148,10 @@ fun SettingLink(
 @Composable
 fun SimplifiedHomeScreen(navController: NavHostController) {
     val context = LocalContext.current
-    var isAssistantEnabled by remember { mutableStateOf(FloatingAssistantService.isRunning) }
+    
+    // מפתח השירות כמחרוזת טקסט למניעת צימוד (Decoupling) וקריסות בפתיחה
+    val serviceClass = "org.futo.voiceinput.FloatingAssistantService"
+    var isAssistantEnabled by remember { mutableStateOf(isServiceRunning(context, serviceClass)) }
 
     SettingListLazy {
         item {
@@ -167,14 +190,14 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
 
-        // 5. מתג הפעלת העוזר הקולי (לחצן צף) - קריאה לפי מיקום (Positional) למניעת בעיות חתימה
+        // 5. מתג הפעלת העוזר הקולי המבוסס טקסט בלבד למניעת קריסות בפתיחה
         item {
             SettingToggleRaw(
                 "הפעלת העוזר הקולי (לחצן צף)",
                 isAssistantEnabled,
                 { active ->
                     isAssistantEnabled = active
-                    val intent = Intent(context, FloatingAssistantService::class.java)
+                    val intent = Intent().setClassName(context.packageName, serviceClass)
                     if (active) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             context.startForegroundService(intent)

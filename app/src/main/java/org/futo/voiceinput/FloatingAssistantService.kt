@@ -73,20 +73,11 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             updateUIByState(state)
         }
 
-        val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
-        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
-
-        if (isSmartMode) {
-            recognizer?.create()
-        } else {
-            setupFloatingWidget()
-        }
+        // תמיד פותחים ומפעילים את הלחצן הצף וממתינים ללחיצה ידנית בלבד
+        setupFloatingWidget()
     }
 
     private fun startServiceForeground() {
-        val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
-        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
@@ -97,8 +88,8 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             manager.createNotificationChannel(channel)
         }
 
-        val title = if (isSmartMode) "מצב עוזר חכם פעיל" else "העוזר הקולי פעיל"
-        val desc = if (isSmartMode) "האזנה רציפה ברקע באנרגיה נמוכה פעילה" else "לחצן המיקרופון הצף זמין על המסך"
+        val title = "העוזר הקולי פעיל"
+        val desc = "לחצן המיקרופון הצף זמין על המסך"
 
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
@@ -144,7 +135,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             setPadding(10, 6, 20, 6)
         }
 
-        // הגדרת מידות מדויקות להקטנת הלחצן לחמישית מהגודל המקורי
         val buttonSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP, 36f, resources.displayMetrics
         ).toInt()
@@ -248,9 +238,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         val button = floatingButton ?: return
         val text = statusTextView ?: return
 
-        val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
-        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
-
         when (state) {
             AssistantRecognizer.State.IDLE -> {
                 button.setImageResource(R.drawable.ic_keyboard_voice)
@@ -262,8 +249,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                     text.visibility = View.GONE
                 }, 3000)
 
-                val defaultDesc = if (isSmartMode) "האזנה רציפה ברקע באנרגיה נמוכה פעילה" else "לחצן המיקרופון הצף זמין על המסך"
-                updateNotification(if (isSmartMode) "מצב עוזר חכם פעיל" else "העוזר הקולי פעיל", defaultDesc)
+                updateNotification("העוזר הקולי פעיל", "לחצן המיקרופון הצף זמין על המסך")
             }
             AssistantRecognizer.State.RECORDING -> {
                 text.visibility = View.VISIBLE
@@ -298,7 +284,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
     }
 
     fun updateLiveStatus(message: String) {
-        // שומר על אייקון גלגל השיניים במהלך ביצוע הפעולה
         floatingButton?.setImageResource(R.drawable.ic_settings_suggest)
         
         statusTextView?.let { text ->
@@ -311,10 +296,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
 
         if (message == "לא זוהתה פקודה תקינה" || message == "לא הבנתי") {
             handler.postDelayed({
-                val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
-                val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
-                val defaultDesc = if (isSmartMode) "האזנה רציפה ברקע באנרגיה נמוכה פעילה" else "לחצן המיקרופון הצף זמין על המסך"
-                updateNotification(if (isSmartMode) "מצב עוזר חכם פעיל" else "העוזר הקולי פעיל", defaultDesc)
+                updateNotification("העוזר הקולי פעיל", "לחצן המיקרופון הצף זמין על המסך")
                 statusTextView?.visibility = View.GONE
                 floatingButton?.setImageResource(R.drawable.ic_keyboard_voice)
             }, 3000)

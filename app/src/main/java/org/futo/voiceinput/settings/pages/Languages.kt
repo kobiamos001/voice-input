@@ -73,15 +73,19 @@ fun LanguagesScreen(
 
     LaunchedEffect(languages) {
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
-        val userChoseEnglish = prefs.getBoolean("user_chose_english", false)
         
+        // קריאת המצב הנוכחי של הדגל
+        var userChoseEnglish = prefs.getBoolean("user_chose_english", false)
+
         if (languages.size == 1 && languages.contains("en")) {
             prefs.edit().putBoolean("user_chose_english", true).apply()
+            userChoseEnglish = true // עדכון מקומי מיידי של המשתנה למניעת תחרות ריצה
         } else if (languages.contains("he")) {
             prefs.edit().putBoolean("user_chose_english", false).apply()
+            userChoseEnglish = false // עדכון מקומי מיידי של המשתנה למניעת תחרות ריצה
         }
 
-        // אם ההגדרות ריקות או מכילות אנגלית בלבד (והמשתמש לא בחר זאת במפורש) - נגדיר עברית
+        // כעת הבדיקה מתבצעת מול המצב המעודכן באותו הרגע
         if (languages.isEmpty() || (languages.size == 1 && languages.contains("en") && !userChoseEnglish)) {
             setLanguages(setOf("he"))
         }

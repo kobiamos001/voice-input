@@ -398,15 +398,17 @@ val MULTILINGUAL_MODELS = listOf(
 )
 
 suspend fun Context.getLanguageModelMap(): Map<String, ModelData> {
-    // כפיית מודל 74 רב-לשוני (אינדקס 1)
     val modelIdx = 1 
     val englishModelIdx = 0
     val useLanguageSpecificModels = getSetting(USE_LANGUAGE_SPECIFIC_MODELS)
     val manuallySelectLanguage = getSetting(MANUALLY_SELECT_LANGUAGE)
     
-    // אכיפת עברית כברירת מחדל אם מסד הנתונים מכיל אנגלית בלבד (הפעלה ראשונה)
+    // בדיקת דגל שמירת הבחירה הידנית של המשתמש
+    val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+    val userChoseEnglish = prefs.getBoolean("user_chose_english", false)
+
     var languages = getSetting(LANGUAGE_TOGGLES)
-    if (languages.isEmpty() || (languages.size == 1 && languages.contains("en"))) {
+    if (!userChoseEnglish && (languages.isEmpty() || (languages.size == 1 && languages.contains("en")))) {
         languages = setOf("he")
     }
 
@@ -422,8 +424,6 @@ suspend fun Context.getLanguageModelMap(): Map<String, ModelData> {
     if(languages.size > 1 && !manuallySelectLanguage) {
         map["unk"] = MULTILINGUAL_MODELS[modelIdx]
     }
-
-    //if(!manuallySelectLanguage && !useLanguageSpecificModels)
 
     return map
 }

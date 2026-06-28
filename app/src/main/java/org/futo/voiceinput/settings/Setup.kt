@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,12 +14,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,49 +45,69 @@ import org.futo.voiceinput.theme.Typography
 
 @Composable
 fun SetupContainer(inner: @Composable () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.75f)
+                .weight(0.4f),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
                 contentDescription = null,
-                modifier = Modifier
-                    .matchParentSize()
-                    .align(Alignment.Center),
-                tint = MaterialTheme.colorScheme.onBackground
+                modifier = Modifier.size(140.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
         }
 
-        Row(
+        Card(
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            ),
             modifier = Modifier
                 .fillMaxWidth()
+                .weight(0.6f)
         ) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterVertically)
-                    .padding(32.dp)
+                    .fillMaxSize()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(modifier = Modifier.align(Alignment.CenterVertically)) {
-                    Column {
-                        inner()
-                    }
-                }
+                inner()
             }
         }
-
-        Spacer(modifier = Modifier.weight(0.25f))
     }
 }
 
 @Composable
 fun Step(fraction: Float, text: String) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text, style = Typography.labelSmall)
-        LinearProgressIndicator(progress = fraction, modifier = Modifier.fillMaxWidth())
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+    ) {
+        Text(
+            text = text, 
+            style = Typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        LinearProgressIndicator(
+            progress = fraction, 
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp))
+        )
     }
 }
 
@@ -115,15 +142,20 @@ fun SetupEnableIME(onClick: () -> Unit = { }) {
         Text(
             stringResource(R.string.enable_ime_body),
             textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.fillMaxWidth()
         )
         Button(
             onClick = launchImeOptions,
+            shape = CircleShape,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(top = 24.dp, bottom = 16.dp)
         ) {
-            Text(stringResource(R.string.open_input_method_settings))
+            Text(
+                stringResource(R.string.open_input_method_settings),
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }
@@ -157,15 +189,20 @@ fun SetupEnableMic(onClick: () -> Unit = { }) {
         Text(
             stringResource(R.string.grant_microphone_body),
             textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.fillMaxWidth()
         )
         Button(
             onClick = askMicAccess,
+            shape = CircleShape,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(top = 24.dp, bottom = 16.dp)
         ) {
-            Text(stringResource(R.string.grant_microphone_permission))
+            Text(
+                stringResource(R.string.grant_microphone_permission),
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }
@@ -185,6 +222,7 @@ fun SetupBlacklistedKeyboardWarning(
         Text(
             stringResource(R.string.incompatible_keyboard),
             textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -198,11 +236,12 @@ fun SetupBlacklistedKeyboardWarning(
         )
         Button(
             onClick = onClick,
+            shape = CircleShape,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(top = 24.dp, bottom = 16.dp)
         ) {
-            Text(info.dismiss)
+            Text(info.dismiss, style = MaterialTheme.typography.labelLarge)
         }
     }
 }
@@ -220,6 +259,7 @@ fun SetupWrongDefaultWarning(
         Text(
             stringResource(R.string.change_default_voice_input),
             textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -233,26 +273,38 @@ fun SetupWrongDefaultWarning(
         )
 
         val context = LocalContext.current
-        Row {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp)
+        ) {
             Button(
                 onClick = { context.openSystemDefaultsSettings(info.name) },
+                shape = CircleShape,
                 modifier = Modifier
-                    .weight(2.0f)
-                    .padding(6.dp, 16.dp)
+                    .weight(1f)
+                    .padding(end = 6.dp)
             ) {
-                Text(stringResource(R.string.clear_app_s_defaults))
+                Text(
+                    stringResource(R.string.clear_app_s_defaults),
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
             Button(
                 onClick = onClick,
+                shape = CircleShape,
                 modifier = Modifier
-                    .weight(1.5f)
-                    .padding(6.dp, 16.dp),
+                    .weight(1f)
+                    .padding(start = 6.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary,
                     contentColor = MaterialTheme.colorScheme.onSecondary
                 )
             ) {
-                Text(stringResource(R.string.dismiss))
+                Text(
+                    stringResource(R.string.dismiss),
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
         }
     }

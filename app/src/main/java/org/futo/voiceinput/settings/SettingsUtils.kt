@@ -18,9 +18,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
@@ -36,12 +39,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.futo.voiceinput.R
 import org.futo.voiceinput.Status
+import org.futo.voiceinput.FloatingAssistantService
 import org.futo.voiceinput.payments.BillingManager
 import org.futo.voiceinput.settings.pages.AdvancedScreen
 import org.futo.voiceinput.settings.pages.CreditsScreen
 import org.futo.voiceinput.settings.pages.DependenciesScreen
 import org.futo.voiceinput.settings.pages.HelpScreen
-import org.futo.voiceinput.settings.pages.HomeScreen
 import org.futo.voiceinput.settings.pages.InputScreen
 import org.futo.voiceinput.settings.pages.LanguagesScreen
 import org.futo.voiceinput.settings.pages.ModelsScreen
@@ -82,7 +85,6 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
     val uri = Uri.fromParts("package", component.packageName, null)
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        // Try the new intent, otherwise fall back to application details settings
         try {
             startActivity(
                 Intent(Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS).apply {
@@ -92,7 +94,6 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
 
             return
         } catch(e: ActivityNotFoundException) {
-            // pass
             println("Failed to open ACTION_APP_OPEN_BY_DEFAULT_SETTINGS")
         }
     }
@@ -103,6 +104,58 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
         })
     }catch(e: ActivityNotFoundException) {
         println("Failed to open ACTION_APPLICATION_DETAILS_SETTINGS")
+    }
+}
+
+// תצוגת מסך בית מופשטת המציגה אך ורק את השפות, הגדרות הקלט, ומתג העוזר הקולי
+@Composable
+fun SimplifiedHomeScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    var isAssistantEnabled by remember { mutableStateOf(FloatingAssistantService.isRunning) }
+
+    SettingListLazy {
+        item {
+            ScreenTitle("הגדרות", showBack = false, navController = navController)
+        }
+
+        // 1. שפות
+        item {
+            SettingLink(
+                "שפות (Languages)",
+                icon = R.drawable.ic_language,
+                onClick = { navController.navigate("languages") }
+            )
+        }
+
+        // 2. הגדרות קלט (Advanced)
+        item {
+            SettingLink(
+                "הגדרות מתקדמות",
+                icon = R.drawable.ic_advanced,
+                onClick = { navController.navigate("advanced") }
+            )
+        }
+
+        // 3. מתג הפעלת העוזר הקולי (לחצן צף)
+        item {
+            SettingToggleRaw(
+                title = "הפעלת העוזר הקולי (לחצן צף)",
+                checked = isAssistantEnabled,
+                onCheckedChange = { active ->
+                    isAssistantEnabled = active
+                    val intent = Intent(context, FloatingAssistantService::class.java)
+                    if (active) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            context.startForegroundService(intent)
+                        } else {
+                            context.startService(intent)
+                        }
+                    } else {
+                        context.stopService(intent)
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -140,7 +193,8 @@ fun SettingsMain(
         navController = navController,
         startDestination = "home"
     ) {
-        composable("home") { HomeScreen(settingsViewModel, navController) }
+        // טעינת מסך הבית המופשט החדש
+        composable("home") { SimplifiedHomeScreen(navController) }
         composable("advanced") { AdvancedScreen(settingsViewModel, navController) }
         composable("help") { HelpScreen(navController) }
         composable("languages") { LanguagesScreen(settingsViewModel, navController) }
@@ -183,13 +237,11 @@ fun SetupOrMain(settingsViewModel: SettingsViewModel = viewModel(), billing: Bil
     val blacklistedMethods =
         listOf(
             BlacklistedInputMethod(
-                // No issue for this as far as I can tell
-                // Maybe file one at https://issuetracker.google.com/issues?q=gboard
                 "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
                 details = stringResource(R.string.gboard_incompatible_details),
                 dismiss = stringResource(R.string.gboard_incompatible_accept)
             ),
-            BlacklistedInputMethod( // Issue: https://suggestions.typewise.app/suggestions/65517/voice-to-text-dictation
+            BlacklistedInputMethod(
                 "ch.icoaching.typewise/ch.icoaching.wrio.Wrio",
                 details = stringResource(R.string.typewise_incompatible_details),
                 dismiss = stringResource(R.string.typewise_incompatible_accept)
@@ -199,14 +251,12 @@ fun SetupOrMain(settingsViewModel: SettingsViewModel = viewModel(), billing: Bil
                 details = stringResource(R.string.samsung_keyboard_incompatible_details),
                 dismiss = stringResource(R.string.samsung_keyboard_incompatible_accept)
             ),
-
-            // NOTE: These are two entirely different keyboards with the same name, both incompatible
-            BlacklistedInputMethod( // Issue: https://github.com/SimpleMobileTools/Simple-Keyboard/issues/201
+            BlacklistedInputMethod(
                 "com.simplemobiletools.keyboard/.services.SimpleKeyboardIME",
                 details = stringResource(R.string.simplekeyboard_incompatible_details),
                 dismiss = stringResource(R.string.simplekeyboard_incompatible_accept)
             ),
-            BlacklistedInputMethod( // Issue: https://github.com/rkkr/simple-keyboard/issues/133
+            BlacklistedInputMethod(
                 "rkr.simplekeyboard.inputmethod/.latin.LatinIME",
                 details = stringResource(R.string.simplekeyboard_incompatible_details),
                 dismiss = stringResource(R.string.simplekeyboard_incompatible_accept)

@@ -455,6 +455,15 @@ abstract class AudioRecognizer {
 
                         floatSamples.put(samples.sliceArray(0 until nRead).map { it.toFloat() / Short.MAX_VALUE.toFloat() }.toFloatArray())
 
+                        // מניעת הצטברות שתיקה ברקע (Rolling Buffer) - שומר רק 0.5 שניות אחרונות כל עוד לא זוהה דיבור
+                        if (!hasTalked && floatSamples.position() > 24000) { // 24,000 סאמפלים שווים ל-1.5 שניות
+                            val preserveSamples = 8000 // 8,000 סאמפלים שווים ל-0.5 שניות
+                            val array = floatSamples.array()
+                            val startPos = floatSamples.position() - preserveSamples
+                            floatSamples.clear()
+                            floatSamples.put(array, startPos, preserveSamples)
+                        }
+
                         // Don't set hasTalked if the start sound may still be playing, otherwise on some
                         // devices the rms just explodes and `hasTalked` is always true
                         val startSoundPassed = (floatSamples.position() > 16000*0.6)
@@ -480,8 +489,9 @@ abstract class AudioRecognizer {
                             isMicBlocked = true
                         }
 
-                        // End if VAD hasn't detected speech in a while
-                        if(shouldUseVad && hasTalked && (numConsecutiveNonSpeech > 66)) {
+                        // קיצור זמן ההמתנה בשתיקה ל-1.5 שניות עבור העוזר (במקום 6.6 שניות במקלדת)
+                        val silenceTimeoutLimit = if (this@AudioRecognizer is AssistantRecognizer) 15 else 66
+                        if(shouldUseVad && hasTalked && (numConsecutiveNonSpeech > silenceTimeoutLimit)) {
                             withContext(Dispatchers.Main){ finishRecognizer() }
                             break
                         }

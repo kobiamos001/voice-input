@@ -59,7 +59,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
 
-        // שמירה על ערנות המעבד גם כאשר המסך כבוי לצורך האזנה רציפה ברקע
         try {
             val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
             wakeLock = pm?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Assistant:WakeLock")
@@ -74,15 +73,12 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             updateUIByState(state)
         }
 
-        // בדיקה האם מצב עוזר חכם פעיל
         val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
 
         if (isSmartMode) {
-            // במצב חכם אין צורך בלחצן צף, אנו מתחילים להאזין מיד ברקע
             recognizer?.create()
         } else {
-            // במצב רגיל אנו בונים את הלחצן הצף ומחכים ללחיצה
             setupFloatingWidget()
         }
     }
@@ -117,14 +113,13 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         }
     }
 
-    // פונקציה לעדכון דינמי של שורת ההתראות למעלה בזמן אמת
     private fun updateNotification(title: String, desc: String) {
         try {
             val notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(desc)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setOnlyAlertOnce(true) // מונע רטט או צליל מטריד בכל שינוי סטטוס
+                .setOnlyAlertOnce(true) 
                 .build()
 
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -298,7 +293,8 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             text.text = message
             text.setTextColor(Color.parseColor("#4CAF50"))
         }
-        // עדכון שורת ההתראות בטקסט הפעולה הספציפית המבוצעת כעת
+
+        // עדכון ההתראה בשורת המשימות למניעת תקיעה על סטטוסים קודמים
         updateNotification("עוזר קולי: מבצע פקודה", message)
     }
 

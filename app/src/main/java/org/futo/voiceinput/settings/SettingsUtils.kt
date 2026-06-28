@@ -121,8 +121,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
         // 1. שפות
         item {
             SettingLink(
-                "שפות (Languages)",
-                icon = R.drawable.ic_language,
+                title = "שפות (Languages)",
                 onClick = { navController.navigate("languages") }
             )
         }
@@ -130,18 +129,33 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
         // 2. הגדרות קלט (Advanced)
         item {
             SettingLink(
-                "הגדרות מתקדמות",
-                icon = R.drawable.ic_advanced,
+                title = "הגדרות מתקדמות",
                 onClick = { navController.navigate("advanced") }
             )
         }
 
-        // 3. מתג הפעלת העוזר הקולי (לחצן צף)
+        // 3. עזרה והדרכה
+        item {
+            SettingLink(
+                title = "עזרה והדרכה",
+                onClick = { navController.navigate("help") }
+            )
+        }
+
+        // 4. אודות ומעקב בעיות (Credits)
+        item {
+            SettingLink(
+                title = "אודות ומעקב בעיות",
+                onClick = { navController.navigate("credits") }
+            )
+        }
+
+        // 5. מתג הפעלת העוזר הקולי (לחצן צף)
         item {
             SettingToggleRaw(
                 title = "הפעלת העוזר הקולי (לחצן צף)",
-                checked = isAssistantEnabled,
-                onCheckedChange = { active ->
+                value = isAssistantEnabled,
+                setValue = { active ->
                     isAssistantEnabled = active
                     val intent = Intent(context, FloatingAssistantService::class.java)
                     if (active) {

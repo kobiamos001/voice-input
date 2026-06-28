@@ -31,17 +31,11 @@ class AssistantRecognizer(
     override fun finished(result: String) {
         onStateChanged(State.FINISHED)
 
+        val trimmedResult = result.trim()
         if (context is FloatingAssistantService) {
-            // הצגת הטקסט שפוענח בפועל בשורת המשימות לצורך בדיקה ודיבאג
-            val trimmedResult = result.trim()
-            (context as FloatingAssistantService).updateLiveStatus("זיהה: \"$trimmedResult\"")
-            
-            // השהייה קלה של 1.5 שניות כדי שהמשתמש יספיק לקרוא את הטקסט שפוענח לפני ביצוע הפקודה
-            lifecycleScope.launch {
-                delay(1500L)
-                CommandParser.parseAndExecute(context, trimmedResult) { statusMessage ->
-                    (context as FloatingAssistantService).updateLiveStatus(statusMessage)
-                }
+            // ביצוע הפקודה באופן מיידי וללא שיהוי
+            CommandParser.parseAndExecute(context, trimmedResult) { statusMessage ->
+                (context as FloatingAssistantService).updateLiveStatus(statusMessage)
             }
         } else {
             CommandParser.parseAndExecute(context, result) {}

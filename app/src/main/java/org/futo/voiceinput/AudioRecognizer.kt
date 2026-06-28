@@ -474,7 +474,8 @@ abstract class AudioRecognizer {
 
                         val rms = sqrt(samples.sumOf { ((it.toFloat() / Short.MAX_VALUE.toFloat()).pow(2)).toDouble() } / samples.size).toFloat()
 
-                        if(startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
+                        // הגנת רעשי רקע (Sustained Speech Protection): הגדרת התחלת דיבור רק אם יש דיבור רציף של לפחות 300 מילישניות (3 פריימים)
+                        if(startSoundPassed && (numConsecutiveSpeech >= 3 || (rms > 0.03 && numConsecutiveSpeech >= 1))) {
                             hasTalked = true
                             this@AudioRecognizer.hasUserTalked = true // זיהוי דיבור משתמש אמיתי
                         }

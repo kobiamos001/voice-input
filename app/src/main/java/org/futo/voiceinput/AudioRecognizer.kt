@@ -323,7 +323,6 @@ abstract class AudioRecognizer {
     }
 
     private fun startRecording(numTries: Int = 0) {
-        // מניעת כפל הקלטות במצבי האזנה מהירים ברקע
         if (isRecording) {
             try {
                 onFinishRecording()
@@ -333,7 +332,7 @@ abstract class AudioRecognizer {
             return
         }
 
-        hasUserTalked = false // איפוס המשתנה בכל הפעלה מחדש
+        hasUserTalked = false 
         isVADPaused = false
 
         try {
@@ -455,17 +454,14 @@ abstract class AudioRecognizer {
 
                         floatSamples.put(samples.sliceArray(0 until nRead).map { it.toFloat() / Short.MAX_VALUE.toFloat() }.toFloatArray())
 
-                        // מניעת הצטברות שתיקה ברקע (Rolling Buffer) - שומר רק 0.5 שניות אחרונות כל עוד לא זוהה דיבור
-                        if (!hasTalked && floatSamples.position() > 24000) { // 24,000 סאמפלים שווים ל-1.5 שניות
-                            val preserveSamples = 8000 // 8,000 סאמפלים שווים ל-0.5 שניות
+                        if (!hasTalked && floatSamples.position() > 24000) {
+                            val preserveSamples = 8000 
                             val array = floatSamples.array()
                             val startPos = floatSamples.position() - preserveSamples
                             floatSamples.clear()
                             floatSamples.put(array, startPos, preserveSamples)
                         }
 
-                        // Don't set hasTalked if the start sound may still be playing, otherwise on some
-                        // devices the rms just explodes and `hasTalked` is always true
                         val startSoundPassed = (floatSamples.position() > 16000*0.6)
                         if(!startSoundPassed){
                             numConsecutiveSpeech = 0
@@ -474,13 +470,12 @@ abstract class AudioRecognizer {
 
                         val rms = sqrt(samples.sumOf { ((it.toFloat() / Short.MAX_VALUE.toFloat()).pow(2)).toDouble() } / samples.size).toFloat()
 
-                        // סינון רעשים מחמיר לעוזר: דורש 500ms של דיבור רציף וסנן עוצמה של 0.05f
                         val requiredConsecutiveSpeech = if (this@AudioRecognizer is AssistantRecognizer) 5 else 3
                         val rmsThreshold = if (this@AudioRecognizer is AssistantRecognizer) 0.05f else 0.01f
 
                         if(startSoundPassed && (numConsecutiveSpeech >= requiredConsecutiveSpeech || (rms > rmsThreshold && numConsecutiveSpeech >= 1))) {
                             hasTalked = true
-                            this@AudioRecognizer.hasUserTalked = true // זיהוי דיבור משתמש אמיתי
+                            this@AudioRecognizer.hasUserTalked = true 
                         }
 
                         if(rms > 0.0001){
@@ -488,12 +483,10 @@ abstract class AudioRecognizer {
                             isMicBlocked = false
                         }
 
-                        // Check if mic is blocked
                         if(!anyNoiseAtAll && canMicBeBlocked && (floatSamples.position() > 2*16000)){
                             isMicBlocked = true
                         }
 
-                        // קיצור זמן ההמתנה בשתיקה ל-1.5 שניות עבור העוזר (במקום 6.6 שניות במקלדת)
                         val silenceTimeoutLimit = if (this@AudioRecognizer is AssistantRecognizer) 15 else 66
                         if(shouldUseVad && hasTalked && (numConsecutiveNonSpeech > silenceTimeoutLimit)) {
                             withContext(Dispatchers.Main){ finishRecognizer() }
@@ -522,8 +515,6 @@ abstract class AudioRecognizer {
                             }
                         }
 
-                        // Skip ahead as much as possible, in case we are behind (taking more than
-                        // 100ms to process 100ms)
                         while(true){
                             yield()
                             val nRead2 = recorder!!.read(samples, 0, 1600, AudioRecord.READ_NON_BLOCKING)
@@ -542,14 +533,9 @@ abstract class AudioRecognizer {
                 }
             }
 
-            // We can only load model now, because the model loading may fail and need to cancel
-            // everything we just did.
-            // TODO: We could check if the model exists before doing all this work
             loadModel()
-
             recordingStarted()
         } catch(e: SecurityException){
-            // It's possible we may have lost permission, so let's just ask for permission again
             needPermission()
         }
     }
@@ -589,15 +575,13 @@ abstract class AudioRecognizer {
             return runModel()
         }
 
-        // השארת המודל טעון בזיכרון דרך קבע עבור העוזר הקולי למניעת שיהוי פענוח
         if (this !is AssistantRecognizer) {
             model!!.close()
-        model = null
+            model = null
         }
 
         lifecycleScope.launch {
             withContext(Dispatchers.Main) {
-                // בדיקת סף הזיות ושתיקה גלובלית (מונע הדפסת מילים בשקט מוחלט הן במקלדת והן בעוזר)
                 if (!hasUserTalked || text.trim().length < 2) {
                     cancelled()
                 } else {

@@ -113,7 +113,6 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
     }
 }
 
-// פונקציית עזר הבודקת האם שירות פעיל לפי שם המחלקה כמחרוזת טקסט בלבד (מונע קריסות Classloader)
 fun isServiceRunning(context: Context, className: String): Boolean {
     return try {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
@@ -130,7 +129,6 @@ fun isServiceRunning(context: Context, className: String): Boolean {
     }
 }
 
-// מימוש עצמאי, יציב וחסין-שגיאות לחלוטין של שורת הגדרה לחיצה (SettingLink)
 @Composable
 fun SettingLink(
     title: String,
@@ -150,21 +148,27 @@ fun SettingLink(
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "<", // חץ מעוצב RTL מותאם לעברית ללא תלות באייקונים חיצוניים
+            text = "<",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
-// תצוגת מסך בית מופשטת ומעוצבת מחדש לחלוטין
+// תצוגת מסך בית מופשטת המציגה אך ורק את השפות, הגדרות קלט, עוזר חכם, עוזר צף, עזרה ואודות
 @Composable
 fun SimplifiedHomeScreen(navController: NavHostController) {
     val context = LocalContext.current
     
-    // מפתח השירות כמחרוזת טקסט למניעת צימוד (Decoupling) וקריסות בפתיחה
     val serviceClass = "org.futo.voiceinput.FloatingAssistantService"
     var isAssistantEnabled by remember { mutableStateOf(isServiceRunning(context, serviceClass)) }
+
+    // שימוש בהגדרת ה-VAD ישירות במסך הבית
+    val (isVadEnabled, setVadEnabled) = useDataStore(IS_VAD_ENABLED.key, default = IS_VAD_ENABLED.default)
+
+    // שליטה במצב העוזר החכם באמצעות SharedPreferences
+    val prefs = remember { context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE) }
+    var isSmartMode by remember { mutableStateOf(prefs.getBoolean("smart_assistant_mode", false)) }
 
     SettingListLazy {
         item {
@@ -179,15 +183,75 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
 
-        // 2. הגדרות קלט (Advanced)
+        // 2. עצירה אוטומטית בשקט (עבור מקלדת) - החליף את הגדרות מתקדמות
         item {
-            SettingLink(
-                title = "הגדרות מתקדמות",
-                onClick = { navController.navigate("advanced") }
+            SettingToggleRaw(
+                "עצירה אוטומטית בשקט (עבור מקלדת)",
+                isVadEnabled.value,
+                { active -> setVadEnabled(active) }
             )
         }
 
-        // 3. עזרה והדרכה
+        // 3. מתג: מצב עוזר חכם (האזנה רציפה ברקע)
+        item {
+            SettingToggleRaw(
+                "מצב עוזר חכם (האזנה רציפה ברקע)",
+                isSmartMode,
+                { active ->
+                    isSmartMode = active
+                    prefs.edit().putBoolean("smart_assistant_mode", active).apply()
+                    
+                    // במידה והשירות רץ, מאתחלים אותו כדי להחיל את שינוי המצב
+                    if (isAssistantEnabled) {
+                        val intent = Intent().setClassName(context.packageName, serviceClass)
+                        context.stopService(intent)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            context.startForegroundService(intent)
+                        } else {
+                            context.startService(intent)
+                        }
+                    }
+                }
+            )
+        }
+
+        // 4. מתג: הפעלת העוזר הקולי (שירות לחצן צף / רקע) עם בדיקת הרשאות חכמה
+        item {
+            SettingToggleRaw(
+                "הפעלת שירות עוזר קולי",
+                isAssistantEnabled,
+                { active ->
+                    val intent = Intent().setClassName(context.packageName, serviceClass)
+                    if (active) {
+                        // אם המשתמש לא במצב חכם והרשאת Overlay חסרה - נפנה להגדרות במקום לקרוס
+                        if (!isSmartMode && !Settings.canDrawOverlays(context)) {
+                            isAssistantEnabled = false
+                            try {
+                                val overlayIntent = Intent(
+                                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    Uri.parse("package:${context.packageName}")
+                                )
+                                context.startActivity(overlayIntent)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        } else {
+                            isAssistantEnabled = true
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                context.startForegroundService(intent)
+                            } else {
+                                context.startService(intent)
+                            }
+                        }
+                    } else {
+                        isAssistantEnabled = false
+                        context.stopService(intent)
+                    }
+                }
+            )
+        }
+
+        // 5. עזרה והדרכה
         item {
             SettingLink(
                 title = "עזרה והדרכה",
@@ -195,32 +259,11 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
 
-        // 4. אודות ומעקב בעיות (Credits)
+        // 6. אודות ומעקב בעיות
         item {
             SettingLink(
                 title = "אודות ומעקב בעיות",
                 onClick = { navController.navigate("credits") }
-            )
-        }
-
-        // 5. מתג הפעלת העוזר הקולי המבוסס טקסט בלבד למניעת קריסות בפתיחה
-        item {
-            SettingToggleRaw(
-                "הפעלת העוזר הקולי (לחצן צף)",
-                isAssistantEnabled,
-                { active ->
-                    isAssistantEnabled = active
-                    val intent = Intent().setClassName(context.packageName, serviceClass)
-                    if (active) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            context.startForegroundService(intent)
-                        } else {
-                            context.startService(intent)
-                        }
-                    } else {
-                        context.stopService(intent)
-                    }
-                }
             )
         }
     }
@@ -260,7 +303,6 @@ fun SettingsMain(
         navController = navController,
         startDestination = "home"
     ) {
-        // טעינת מסך הבית המופשט החדש
         composable("home") { SimplifiedHomeScreen(navController) }
         composable("advanced") { AdvancedScreen(settingsViewModel, navController) }
         composable("help") { HelpScreen(navController) }

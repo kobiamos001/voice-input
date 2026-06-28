@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,9 +16,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Hearing
+import androidx.compose.material.icons.filled.SettingsSuggest
+import androidx.compose.material.icons.filled.KeyboardVoice
+import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -130,30 +147,138 @@ fun isServiceRunning(context: Context, className: String): Boolean {
     }
 }
 
-// מימוש עצמאי, יציב וחסין-שגיאות לחלוטין של שורת הגדרה לחיצה (SettingLink)
+// קומפוננטת בועה מעוצבת התואמת לעיצוב הכללי
+@Composable
+fun ModernBubbleCard(
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    if (onClick != null) {
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ),
+            onClick = onClick,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+        ) {
+            content()
+        }
+    } else {
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+        ) {
+            content()
+        }
+    }
+}
+
+// מימוש עם תמיכה באייקונים חיצוניים (עבור מסך הבית המעודכן)
+@Composable
+fun SettingLink(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit
+) {
+    ModernBubbleCard(onClick = onClick) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+// מימוש של שורת הגדרה לחיצה מקורית כשיש קריאות ללא אייקון (תאימות מלאה לשאר חלקי הקוד)
 @Composable
 fun SettingLink(
     title: String,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 24.dp, vertical = 20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = "<", // חץ מעוצב RTL מותאם לעברית ללא תלות באייקונים חיצוניים
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+    SettingLink(
+        title = title,
+        icon = Icons.Default.Info,
+        onClick = onClick
+    )
+}
+
+// קומפוננטת מתג (Toggle) בעיצוב בועה מודרני
+@Composable
+fun ModernSettingToggle(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    ModernBubbleCard {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            )
+        }
     }
 }
 
@@ -181,25 +306,28 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
         item {
             SettingLink(
                 title = "שפות (Languages)",
+                icon = Icons.Default.Language,
                 onClick = { navController.navigate("languages") }
             )
         }
 
-        // 2. עצירה אוטומטית בשקט (עבור מקלדת) - החליף את הגדרות מתקדמות (שימוש ב-isVadEnabled הישיר ללא סיומת .value)
+        // 2. עצירה אוטומטית בשקט (עבור מקלדת) - החליף את הגדרות מתקדמות
         item {
-            SettingToggleRaw(
-                "עצירה אוטומטית בשקט (עבור מקלדת)",
-                isVadEnabled,
-                { active -> setVadEnabled(active) }
+            ModernSettingToggle(
+                title = "עצירה אוטומטית בשקט (עבור מקלדת)",
+                icon = Icons.Default.Hearing,
+                checked = isVadEnabled,
+                onCheckedChange = { active -> setVadEnabled(active) }
             )
         }
 
         // 3. מתג: מצב עוזר חכם (האזנה רציפה ברקע)
         item {
-            SettingToggleRaw(
-                "מצב עוזר חכם (האזנה רציפה ברקע)",
-                isSmartMode,
-                { active ->
+            ModernSettingToggle(
+                title = "מצב עוזר חכם (האזנה רציפה ברקע)",
+                icon = Icons.Default.SettingsSuggest,
+                checked = isSmartMode,
+                onCheckedChange = { active ->
                     isSmartMode = active
                     prefs.edit().putBoolean("smart_assistant_mode", active).apply()
                     
@@ -219,10 +347,11 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
 
         // 4. מתג: הפעלת העוזר הקולי (שירות לחצן צף / רקע) עם בדיקת הרשאות חכמה
         item {
-            SettingToggleRaw(
-                "הפעלת שירות עוזר קולי",
-                isAssistantEnabled,
-                { active ->
+            ModernSettingToggle(
+                title = "הפעלת שירות עוזר קולי",
+                icon = Icons.Default.KeyboardVoice,
+                checked = isAssistantEnabled,
+                onCheckedChange = { active ->
                     val intent = Intent().setClassName(context.packageName, serviceClass)
                     if (active) {
                         // אם המשתמש לא במצב חכם והרשאת Overlay חסרה - נפנה להגדרות במקום לקרוס
@@ -257,6 +386,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
         item {
             SettingLink(
                 title = "עזרה והדרכה",
+                icon = Icons.Default.HelpOutline,
                 onClick = { navController.navigate("help") }
             )
         }
@@ -265,6 +395,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
         item {
             SettingLink(
                 title = "אודות ומעקב בעיות",
+                icon = Icons.Default.Info,
                 onClick = { navController.navigate("credits") }
             )
         }

@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -40,10 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -144,13 +148,12 @@ fun isServiceRunning(context: Context, className: String): Boolean {
     }
 }
 
-// כותרת קטגוריה בעיצוב מודגש ומורחב
+// כותרת קטגוריה בעיצוב מודרני מוגדל (ללא הדגשה שבוטלה)
 @Composable
 fun SettingCategoryHeader(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
             .fillMaxWidth()
@@ -293,6 +296,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
 
     val prefs = remember { context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE) }
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(listOf(multilingualModelIndex, multilingual)) {
         if (multilingual) {
@@ -316,29 +320,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ScreenTitle("העדפות", showBack = false, navController = navController)
         }
 
-        // 1. מקטע ראשון: הקלדה קולית
-        item {
-            SettingCategoryHeader("הקלדה קולית")
-        }
-        item {
-            SettingLink(
-                title = "שפות (Languages)",
-                subtitle = if (languages.contains("en")) "אנגלית (English)" else "עברית (ברירת מחדל)",
-                iconRes = R.drawable.ic_language,
-                onClick = { showLanguageDialog = true }
-            )
-        }
-        item {
-            ModernSettingToggle(
-                title = "עצירה אוטומטית בשקט (עבור מקלדת)",
-                subtitle = "עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט",
-                iconRes = R.drawable.ic_hearing,
-                checked = isVadEnabled,
-                onCheckedChange = { active -> setVadEnabled(active) }
-            )
-        }
-
-        // 2. מקטע שני: עוזר קולי
+        // 1. מקטע ראשון: עוזר קולי (הועלה למעלה)
         item {
             SettingCategoryHeader("עוזר קולי")
         }
@@ -378,6 +360,28 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
 
+        // 2. מקטע שני: הקלדה קולית (הורד למטה)
+        item {
+            SettingCategoryHeader("הקלדה קולית")
+        }
+        item {
+            SettingLink(
+                title = "שפות (Languages)",
+                subtitle = if (languages.contains("en")) "אנגלית (English)" else "עברית (ברירת מחדל)",
+                iconRes = R.drawable.ic_language,
+                onClick = { showLanguageDialog = true }
+            )
+        }
+        item {
+            ModernSettingToggle(
+                title = "עצירה אוטומטית בשקט (עבור מקלדת)",
+                subtitle = "עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט",
+                iconRes = R.drawable.ic_hearing,
+                checked = isVadEnabled,
+                onCheckedChange = { active -> setVadEnabled(active) }
+            )
+        }
+
         // 3. מקטע שלישי: עזרה
         item {
             SettingCategoryHeader("עזרה")
@@ -395,7 +399,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                 title = "אודות ומעקב בעיות",
                 subtitle = "מידע על האפליקציה, רישיונות ודיווח על תקלות",
                 iconRes = R.drawable.ic_info,
-                onClick = { navController.navigate("credits") }
+                onClick = { showAboutDialog = true }
             )
         }
     }
@@ -495,6 +499,147 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                                 showLanguageDialog = false
                             }
                         )
+                    }
+                }
+            }
+        }
+    }
+
+    // תיבת דו-שיח מודרנית עבור אודות ויצירת קשר התואמת לעיצוב ה-XML
+    if (showAboutDialog) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { showAboutDialog = false }
+        ) {
+            Card(
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // לוגו האפליקציה (72dp)
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_keyboard_voice),
+                        contentDescription = "App Logo",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(72.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // שם האפליקציה
+                    Text(
+                        text = "HTransfer",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // גרסה
+                    Text(
+                        text = "V2.1",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // חתימת היוצר Build By HPower
+                    Text(
+                        text = "Build By HPower",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontStyle = FontStyle.Italic
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Text(
+                        text = "©",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 22.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // כרטיס בועת יצירת קשר מעוגל
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            // שורת אתר האינטרנט
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        try {
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://kobiamos001.github.io"))
+                                            context.startActivity(intent)
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
+                                    }
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_language),
+                                    contentDescription = "Website Icon",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = "https://kobiamos001.github.io",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            // שורת אימייל
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        try {
+                                            val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:kobiamos001@gmail.com"))
+                                            context.startActivity(intent)
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
+                                    }
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_email),
+                                    contentDescription = "Email Icon",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = "kobiamos001@gmail.com",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
                     }
                 }
             }

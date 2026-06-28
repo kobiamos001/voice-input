@@ -10,7 +10,6 @@ class AssistantRecognizer(
     private val onStateChanged: (State) -> Unit
 ) : AudioRecognizer() {
 
-    // כפיית שפה עברית קבועה עבור מנוע העוזר הקולי
     init {
         forceLanguage("he")
     }
@@ -30,7 +29,6 @@ class AssistantRecognizer(
     override fun finished(result: String) {
         onStateChanged(State.FINISHED)
 
-        // שליחת הטקסט של הפעולה לעדכון חי על גבי הקפסולה
         if (context is FloatingAssistantService) {
             CommandParser.parseAndExecute(context, result) { statusMessage ->
                 (context as FloatingAssistantService).updateLiveStatus(statusMessage)
@@ -41,11 +39,25 @@ class AssistantRecognizer(
         
         reset()
         onStateChanged(State.IDLE)
+
+        // במצב עוזר חכם: אנו מאתחלים מיד את הלולאה וממשיכים להאזין ברקע ברציפות
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
+        if (isSmartMode && FloatingAssistantService.isRunning) {
+            create()
+        }
     }
 
     override fun cancelled() {
         reset()
         onStateChanged(State.IDLE)
+
+        // במצב עוזר חכם: אתחול מחדש גם במקרה של ביטול (או שקט)
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
+        if (isSmartMode && FloatingAssistantService.isRunning) {
+            create()
+        }
     }
 
     override fun languageDetected(result: String) {}

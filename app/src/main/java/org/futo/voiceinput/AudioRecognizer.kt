@@ -191,7 +191,7 @@ abstract class AudioRecognizer {
     private suspend fun tryLoadModelOrCancel(primaryModel: ModelData, secondaryModelP: ModelData?) {
         val secondaryModel = if(context.getSetting(USE_LANGUAGE_SPECIFIC_MODELS)) { secondaryModelP } else { null }
         
-        // עקיפה דינמית: אכיפת עברית כברירת מחדל רק אם המשתמש לא בחר ידנית באנגלית
+        // עקיפה דינמית: עברית כברירת מחדל רק אם המשתמש לא בחר ידנית באנגלית במקלדת
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val userChoseEnglish = prefs.getBoolean("user_chose_english", false)
 
@@ -200,13 +200,16 @@ abstract class AudioRecognizer {
             languages = setOf("he")
         }
 
+        // שימוש בשפה המאולצת (עברית קבועה) עבור העוזר הקולי, או שפות המקלדת עבור המקלדת
+        val languagesToUse = if (forcedLanguage != null) setOf(forcedLanguage!!) else languages
+
         try {
             model = WhisperModelWrapper(
                 context,
                 primaryModel,
                 secondaryModel,
                 context.getSetting(DISALLOW_SYMBOLS),
-                languages, // הזנת השפה המעודכנת
+                languagesToUse, // שימוש ברשימת השפות הדינמית/המאולצת
                 onStatusUpdate = {
                     decodingStatus(it)
                 },
@@ -388,7 +391,11 @@ abstract class AudioRecognizer {
                         .setSilenceDurationMs(300)
                         .build()
 
-                    val shouldUseVad = context.getSetting(IS_VAD_ENABLED)
+                    val shouldUseVad = if (this is AssistantRecognizer) {
+                        true
+                    } else {
+                        context.getSetting(IS_VAD_ENABLED)
+                    }
                     
                     val vadSampleBuffer = ShortBuffer.allocate(480)
                     var numConsecutiveNonSpeech = 0

@@ -43,13 +43,11 @@ class AssistantRecognizer(
         
         reset()
         onStateChanged(State.IDLE)
-        // הוסרה ההפעלה מחדש האוטומטית שהייתה קיימת במצב חכם
     }
 
     override fun cancelled() {
         reset()
         onStateChanged(State.IDLE)
-        // הוסרה ההפעלה מחדש האוטומטית שהייתה קיימת במצב חכם
     }
 
     override fun languageDetected(result: String) {}

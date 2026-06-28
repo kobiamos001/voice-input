@@ -73,17 +73,16 @@ fun LanguagesScreen(
 
     LaunchedEffect(languages) {
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val userChoseEnglish = prefs.getBoolean("user_chose_english", false)
         
         if (languages.size == 1 && languages.contains("en")) {
-            // המשתמש בחר ידנית באנגלית בלבד
             prefs.edit().putBoolean("user_chose_english", true).apply()
         } else if (languages.contains("he")) {
-            // המשתמש בחר עברית
-            prefs.edit().putBoolean("user_chose_hebrew", true).apply()
+            prefs.edit().putBoolean("user_chose_english", false).apply()
         }
 
-        // הפעלה ראשונית: אם ההגדרות ריקות או מכילות אנגלית בלבד (של היצרן המקורי) - נגדיר עברית
-        if (languages.isEmpty() || (languages.size == 1 && languages.contains("en") && !Settings.canDrawOverlays(context))) {
+        // אם ההגדרות ריקות או מכילות אנגלית בלבד (והמשתמש לא בחר זאת במפורש) - נגדיר עברית
+        if (languages.isEmpty() || (languages.size == 1 && languages.contains("en") && !userChoseEnglish)) {
             setLanguages(setOf("he"))
         }
 

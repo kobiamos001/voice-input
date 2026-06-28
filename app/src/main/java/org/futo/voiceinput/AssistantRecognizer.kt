@@ -32,8 +32,16 @@ class AssistantRecognizer(
         onStateChanged(State.FINISHED)
 
         if (context is FloatingAssistantService) {
-            CommandParser.parseAndExecute(context, result) { statusMessage ->
-                (context as FloatingAssistantService).updateLiveStatus(statusMessage)
+            // הצגת הטקסט שפוענח בפועל בשורת המשימות לצורך בדיקה ודיבאג
+            val trimmedResult = result.trim()
+            (context as FloatingAssistantService).updateLiveStatus("זיהה: \"$trimmedResult\"")
+            
+            // השהייה קלה של 1.5 שניות כדי שהמשתמש יספיק לקרוא את הטקסט שפוענח לפני ביצוע הפקודה
+            lifecycleScope.launch {
+                delay(1500L)
+                CommandParser.parseAndExecute(context, trimmedResult) { statusMessage ->
+                    (context as FloatingAssistantService).updateLiveStatus(statusMessage)
+                }
             }
         } else {
             CommandParser.parseAndExecute(context, result) {}
@@ -42,6 +50,7 @@ class AssistantRecognizer(
         reset()
         onStateChanged(State.IDLE)
 
+        // הפעלה מחדש במצב חכם - עם השהיית חומרה בטוחה של 350ms לשחרור המיקרופון
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
         if (isSmartMode && FloatingAssistantService.isRunning) {

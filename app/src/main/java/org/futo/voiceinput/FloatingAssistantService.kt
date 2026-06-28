@@ -294,8 +294,8 @@ class FloatingAssistantService : Service(), LifecycleOwner {
 
         updateNotification("עוזר קולי: מבצע פקודה", message)
 
-        // איפוס אוטומטי של הודעות שגיאה/שקט/זיהוי לאחר 3 שניות
-        if (message.startsWith("זיהה:") || message == "לא זוהתה פקודה תקינה" || message == "לא הבנתי") {
+        // איפוס אוטומטי של הודעות שגיאה/שקט לאחר 3 שניות חזרה לסטטוס הרגיל
+        if (message == "לא זוהתה פקודה תקינה" || message == "לא הבנתי") {
             handler.postDelayed({
                 val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
                 val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)

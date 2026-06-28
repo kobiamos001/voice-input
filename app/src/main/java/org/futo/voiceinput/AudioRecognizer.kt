@@ -191,9 +191,12 @@ abstract class AudioRecognizer {
     private suspend fun tryLoadModelOrCancel(primaryModel: ModelData, secondaryModelP: ModelData?) {
         val secondaryModel = if(context.getSetting(USE_LANGUAGE_SPECIFIC_MODELS)) { secondaryModelP } else { null }
         
-        // אכיפת עברית כברירת מחדל בעת מסירת השפות למנוע ה-Whisper
+        // עקיפה דינמית: אכיפת עברית כברירת מחדל רק אם המשתמש לא בחר ידנית באנגלית
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val userChoseEnglish = prefs.getBoolean("user_chose_english", false)
+
         var languages = context.getSetting(LANGUAGE_TOGGLES)
-        if (languages.isEmpty() || (languages.size == 1 && languages.contains("en"))) {
+        if (!userChoseEnglish && (languages.isEmpty() || (languages.size == 1 && languages.contains("en")))) {
             languages = setOf("he")
         }
 
@@ -203,7 +206,7 @@ abstract class AudioRecognizer {
                 primaryModel,
                 secondaryModel,
                 context.getSetting(DISALLOW_SYMBOLS),
-                languages, // מעביר כעת את רשימת השפות המאולצת לעברית
+                languages, // הזנת השפה המעודכנת
                 onStatusUpdate = {
                     decodingStatus(it)
                 },
@@ -232,14 +235,16 @@ abstract class AudioRecognizer {
             val englishModelIdx = 0
             val multilingualModelIdx = 1
             
-            // הגדרת עקיפת שפה ברירת מחדל לעברית
+            val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+            val userChoseEnglish = prefs.getBoolean("user_chose_english", false)
+
             var languages = context.getSetting(LANGUAGE_TOGGLES)
-            if (languages.isEmpty() || (languages.size == 1 && languages.contains("en"))) {
+            if (!userChoseEnglish && (languages.isEmpty() || (languages.size == 1 && languages.contains("en")))) {
                 languages = setOf("he")
             }
 
-            // כפיית מצב רב-לשוני (עברית)
-            val isMultilingual = true
+            // המודל הרב-לשוני (עברית) פעיל תמיד, אלא אם המשתמש בחר ידנית באנגלית בלבד
+            val isMultilingual = !userChoseEnglish
 
             if (forcedLanguage != null) {
                 tryLoadModelOrCancel(
@@ -562,7 +567,12 @@ abstract class AudioRecognizer {
 
         lifecycleScope.launch {
             withContext(Dispatchers.Main) {
-                finished(text)
+                // בדיקת סף הזיות ושתיקה גלובלית (מונע הדפסת מילים בשקט מוחלט הן במקלדת והן בעוזר)
+                if (!hasUserTalked || text.trim().length < 2) {
+                    cancelled()
+                } else {
+                    finished(text)
+                }
             }
         }
     }

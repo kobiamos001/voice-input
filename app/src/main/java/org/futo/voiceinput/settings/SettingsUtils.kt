@@ -10,12 +10,12 @@ import android.provider.Settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -112,35 +112,27 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
     }
 }
 
-// מימוש עצמאי, יציב וחסין-שגיאות של שורת הגדרה לחיצה (SettingLink)
+// עיצוב מחדש של כפתור הקישור ללא תלות באייקונים מקומיים - חסין קומפילציה לחלוטין
 @Composable
 fun SettingLink(
     title: String,
     onClick: () -> Unit
 ) {
-    ListItem(
-        headlineContent = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-        },
-        trailingContent = {
-            Text(
-                text = "<", // חץ מעוצב מותאם כיוונית לעברית (RTL) ללא תלות באייקונים חיצוניים
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        },
+    Row(
         modifier = Modifier
-            .clickable { onClick() }
             .fillMaxWidth()
-    )
+            .align(Alignment.CenterVertically)
+    ) {
+        // שימוש ברכיב הקישור המקורי של FUTO עם חתימה בטוחה
+        org.futo.voiceinput.settings.SettingLink(
+            title = title,
+            icon = null, // ביטול האייקון למניעת שגיאות קובץ
+            onClick = onClick
+        )
+    }
 }
 
-// תצוגת מסך בית מופשטת המציגה אך ורק את השפות, הגדרות הקלט, ומתג העוזר הקולי
+// תצוגת מסך בית מופשטת ומעוצבת מחדש לחלוטין
 @Composable
 fun SimplifiedHomeScreen(navController: NavHostController) {
     val context = LocalContext.current

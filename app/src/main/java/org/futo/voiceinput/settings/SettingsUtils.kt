@@ -8,7 +8,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,24 +15,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Hearing
-import androidx.compose.material.icons.filled.SettingsSuggest
-import androidx.compose.material.icons.filled.KeyboardVoice
-import androidx.compose.material.icons.filled.HelpOutline
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,9 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -147,142 +133,111 @@ fun isServiceRunning(context: Context, className: String): Boolean {
     }
 }
 
-// קומפוננטת בועה מעוצבת התואמת לעיצוב הכללי
+// כותרת קטנה בצבע כחול לחלוקה לקטגוריות בסגנון מודרני ונקי
 @Composable
-fun ModernBubbleCard(
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    content: @Composable () -> Unit
-) {
-    if (onClick != null) {
-        Card(
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            ),
-            onClick = onClick,
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 6.dp)
-        ) {
-            content()
-        }
-    } else {
-        Card(
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            ),
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 6.dp)
-        ) {
-            content()
-        }
-    }
-}
-
-// מימוש עם תמיכה באייקונים חיצוניים (עבור מסך הבית המעודכן)
-@Composable
-fun SettingLink(
-    title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit
-) {
-    ModernBubbleCard(onClick = onClick) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 18.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-    }
-}
-
-// מימוש של שורת הגדרה לחיצה מקורית כשיש קריאות ללא אייקון (תאימות מלאה לשאר חלקי הקוד)
-@Composable
-fun SettingLink(
-    title: String,
-    onClick: () -> Unit
-) {
-    SettingLink(
-        title = title,
-        icon = Icons.Default.Info,
-        onClick = onClick
+fun SettingCategoryHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 12.dp),
+        textAlign = TextAlign.Start
     )
 }
 
-// קומפוננטת מתג (Toggle) בעיצוב בועה מודרני
+// פונקציית קישור מודרנית עם תמיכה בכותרת משנה (Subtitle)
 @Composable
-fun ModernSettingToggle(
+fun SettingLink(
     title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    subtitle: String? = null,
+    onClick: () -> Unit
 ) {
-    ModernBubbleCard {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (subtitle != null) {
                 Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                    checkedTrackColor = MaterialTheme.colorScheme.primary,
-                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            )
         }
     }
 }
 
-// תצוגת מסך בית מופשטת ומעוצבת מחדש לחלוטין
+// שחזור חתימת הפונקציה המקורית לתאימות מלאה עם קבצים חיצוניים הקוראים לה
+@Composable
+fun SettingLink(
+    title: String,
+    onClick: () -> Unit
+) {
+    SettingLink(title = title, subtitle = null, onClick = onClick)
+}
+
+// פונקציית מתג (Toggle) בעיצוב מודרני מרווח עם כותרת משנה (Subtitle)
+@Composable
+fun ModernSettingToggle(
+    title: String,
+    subtitle: String? = null,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(horizontal = 24.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 16.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        )
+    }
+}
+
+// תצוגת מסך בית מופשטת ומעוצבת מחדש עם חלוקה לקטגוריות
 @Composable
 fun SimplifiedHomeScreen(navController: NavHostController) {
     val context = LocalContext.current
@@ -299,33 +254,37 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
 
     SettingListLazy {
         item {
-            ScreenTitle("הגדרות", showBack = false, navController = navController)
+            ScreenTitle("העדפות", showBack = false, navController = navController)
         }
 
-        // 1. שפות
+        // 1. מקטע ראשון: הקלדה קולית
+        item {
+            SettingCategoryHeader("הקלדה קולית")
+        }
         item {
             SettingLink(
                 title = "שפות (Languages)",
-                icon = Icons.Default.Language,
+                subtitle = "הצגה במקלדת בשפות הרלוונטיות",
                 onClick = { navController.navigate("languages") }
             )
         }
-
-        // 2. עצירה אוטומטית בשקט (עבור מקלדת) - החליף את הגדרות מתקדמות
         item {
             ModernSettingToggle(
                 title = "עצירה אוטומטית בשקט (עבור מקלדת)",
-                icon = Icons.Default.Hearing,
+                subtitle = "עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט",
                 checked = isVadEnabled,
                 onCheckedChange = { active -> setVadEnabled(active) }
             )
         }
 
-        // 3. מתג: מצב עוזר חכם (האזנה רציפה ברקע)
+        // 2. מקטע שני: עוזר קולי
+        item {
+            SettingCategoryHeader("עוזר קולי")
+        }
         item {
             ModernSettingToggle(
-                title = "מצב עוזר חכם (האזנה רציפה ברקע)",
-                icon = Icons.Default.SettingsSuggest,
+                title = "מצב עוזר חכם",
+                subtitle = "האזנה רציפה ברקע וזיהוי פקודות בשפות שונות",
                 checked = isSmartMode,
                 onCheckedChange = { active ->
                     isSmartMode = active
@@ -344,12 +303,10 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                 }
             )
         }
-
-        // 4. מתג: הפעלת העוזר הקולי (שירות לחצן צף / רקע) עם בדיקת הרשאות חכמה
         item {
             ModernSettingToggle(
                 title = "הפעלת שירות עוזר קולי",
-                icon = Icons.Default.KeyboardVoice,
+                subtitle = "הפעלת לחצן צף או שירות רקע לגישה מהירה",
                 checked = isAssistantEnabled,
                 onCheckedChange = { active ->
                     val intent = Intent().setClassName(context.packageName, serviceClass)
@@ -382,20 +339,21 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
 
-        // 5. עזרה והדרכה
+        // 3. מקטע שלישי: עזרה
+        item {
+            SettingCategoryHeader("עזרה")
+        }
         item {
             SettingLink(
                 title = "עזרה והדרכה",
-                icon = Icons.Default.HelpOutline,
+                subtitle = "מדריכים ופתרון בעיות נפוצות",
                 onClick = { navController.navigate("help") }
             )
         }
-
-        // 6. אודות ומעקב בעיות
         item {
             SettingLink(
                 title = "אודות ומעקב בעיות",
-                icon = Icons.Default.Info,
+                subtitle = "מידע על האפליקציה, רישיונות ודיווח על תקלות",
                 onClick = { navController.navigate("credits") }
             )
         }

@@ -54,6 +54,9 @@ import org.futo.voiceinput.settings.pages.PaymentThankYouScreen
 import org.futo.voiceinput.settings.pages.TestScreen
 import org.futo.voiceinput.settings.pages.ThemeScreen
 
+// ייבוא מפורש של ה-SettingLink מתת-החבילה של הדפים
+import org.futo.voiceinput.settings.pages.SettingLink
+
 
 data class SettingsUiState(
     val intentResultText: String = "...",
@@ -150,12 +153,12 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
 
-        // 5. מתג הפעלת העוזר הקולי (לחצן צף)
+        // 5. מתג הפעלת העוזר הקולי (לחצן צף) - קריאה לפי מיקום (Positional) למניעת בעיות חתימה
         item {
             SettingToggleRaw(
-                title = "הפעלת העוזר הקולי (לחצן צף)",
-                value = isAssistantEnabled,
-                setValue = { active ->
+                "הפעלת העוזר הקולי (לחצן צף)",
+                isAssistantEnabled,
+                { active ->
                     isAssistantEnabled = active
                     val intent = Intent(context, FloatingAssistantService::class.java)
                     if (active) {

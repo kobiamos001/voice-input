@@ -56,7 +56,7 @@
             </intent-filter>
         </activity>
 
-        <!-- האקטיביטי החדש להפעלת העוזר הקולי ממסך הבית -->
+        <!-- ביטול האייקון הנפרד על ידי הסרת קטגוריית ה-LAUNCHER -->
         <activity
             android:name=".ToggleAssistantActivity"
             android:exported="true"
@@ -64,7 +64,6 @@
             android:theme="@style/Theme.WhisperVoiceInput">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -128,7 +127,7 @@
             <meta-data android:name="android.view.im" android:resource="@xml/input_method" />
         </service>
 
-        <!-- שירות העוזר הקולי הצף החדש (מוגדר כעת כשירות קדמה עם גישת מיקרופון קבועה) -->
+        <!-- שירות העוזר הקולי הצף החדש -->
         <service
             android:name=".FloatingAssistantService"
             android:enabled="true"

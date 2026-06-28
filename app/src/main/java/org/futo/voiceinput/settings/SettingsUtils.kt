@@ -60,6 +60,9 @@ import org.futo.voiceinput.settings.pages.PaymentThankYouScreen
 import org.futo.voiceinput.settings.pages.TestScreen
 import org.futo.voiceinput.settings.pages.ThemeScreen
 
+// ייבוא של ה-SettingLink מתת-החבילה של הדפים
+import org.futo.voiceinput.settings.pages.SettingLink
+
 
 data class SettingsUiState(
     val intentResultText: String = "...",
@@ -129,33 +132,19 @@ fun isServiceRunning(context: Context, className: String): Boolean {
     }
 }
 
+// מעטפת נקייה המקשרת ישירות ל-SettingLink המקורי של FUTO
 @Composable
 fun SettingLink(
     title: String,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 24.dp, vertical = 20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = "<",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+    org.futo.voiceinput.settings.SettingLink(
+        title = title,
+        onClick = onClick
+    )
 }
 
-// תצוגת מסך בית מופשטת המציגה אך ורק את השפות, הגדרות קלט, עוזר חכם, עוזר צף, עזרה ואודות
+// תצוגת מסך בית מופשטת ומעוצבת מחדש לחלוטין
 @Composable
 fun SimplifiedHomeScreen(navController: NavHostController) {
     val context = LocalContext.current
@@ -183,11 +172,11 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
 
-        // 2. עצירה אוטומטית בשקט (עבור מקלדת) - החליף את הגדרות מתקדמות
+        // 2. עצירה אוטומטית בשקט (עבור מקלדת) - החליף את הגדרות מתקדמות (שימוש ב-isVadEnabled הישיר ללא סיומת .value)
         item {
             SettingToggleRaw(
                 "עצירה אוטומטית בשקט (עבור מקלדת)",
-                isVadEnabled.value,
+                isVadEnabled,
                 { active -> setVadEnabled(active) }
             )
         }
@@ -303,6 +292,7 @@ fun SettingsMain(
         navController = navController,
         startDestination = "home"
     ) {
+        // טעינת מסך הבית המופשט החדש
         composable("home") { SimplifiedHomeScreen(navController) }
         composable("advanced") { AdvancedScreen(settingsViewModel, navController) }
         composable("help") { HelpScreen(navController) }

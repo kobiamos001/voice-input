@@ -593,6 +593,7 @@ abstract class AudioRecognizer {
         if (this !is AssistantRecognizer) {
             model!!.close()
         model = null
+        }
 
         lifecycleScope.launch {
             withContext(Dispatchers.Main) {

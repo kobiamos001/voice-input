@@ -112,24 +112,16 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
     }
 }
 
-// עיצוב מחדש של כפתור הקישור ללא תלות באייקונים מקומיים - חסין קומפילציה לחלוטין
+// מעטפת נקייה, יציבה וחסינת-שגיאות המקשרת ישירות ל-SettingLink המקורי של FUTO
 @Composable
 fun SettingLink(
     title: String,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .align(Alignment.CenterVertically)
-    ) {
-        // שימוש ברכיב הקישור המקורי של FUTO עם חתימה בטוחה
-        org.futo.voiceinput.settings.SettingLink(
-            title = title,
-            icon = null, // ביטול האייקון למניעת שגיאות קובץ
-            onClick = onClick
-        )
-    }
+    org.futo.voiceinput.settings.SettingLink(
+        title = title,
+        onClick = onClick
+    )
 }
 
 // תצוגת מסך בית מופשטת ומעוצבת מחדש לחלוטין

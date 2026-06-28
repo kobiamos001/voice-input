@@ -43,30 +43,13 @@ class AssistantRecognizer(
         
         reset()
         onStateChanged(State.IDLE)
-
-        // הפעלה מחדש במצב חכם - עם השהיית חומרה בטוחה של 350ms לשחרור המיקרופון
-        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
-        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
-        if (isSmartMode && FloatingAssistantService.isRunning) {
-            lifecycleScope.launch {
-                delay(350L) 
-                create()
-            }
-        }
+        // הוסרה ההפעלה מחדש האוטומטית שהייתה קיימת במצב חכם
     }
 
     override fun cancelled() {
         reset()
         onStateChanged(State.IDLE)
-
-        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
-        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
-        if (isSmartMode && FloatingAssistantService.isRunning) {
-            lifecycleScope.launch {
-                delay(350L) 
-                create()
-            }
-        }
+        // הוסרה ההפעלה מחדש האוטומטית שהייתה קיימת במצב חכם
     }
 
     override fun languageDetected(result: String) {}

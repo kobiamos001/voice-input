@@ -10,6 +10,11 @@ class AssistantRecognizer(
     private val onStateChanged: (State) -> Unit
 ) : AudioRecognizer() {
 
+    // כפיית שפה עברית קבועה עבור מנוע העוזר הקולי
+    init {
+        forceLanguage("he")
+    }
+
     enum class State { IDLE, RECORDING, PROCESSING, FINISHED }
 
     override val context: Context get() = mContext
@@ -31,7 +36,6 @@ class AssistantRecognizer(
                 (context as FloatingAssistantService).updateLiveStatus(statusMessage)
             }
         } else {
-            // גיבוי במידה ומופעל מחוץ לשירות
             CommandParser.parseAndExecute(context, result) {}
         }
         

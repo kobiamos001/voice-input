@@ -11,7 +11,11 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,7 +30,21 @@ class SettingsActivity : ComponentActivity() {
     private fun updateContent() {
         setContent {
             UixThemeAuto {
-                // A surface container using the 'background' color from the theme
+                // התאמת צבע הסטטוס בר לצבע הרקע של האפליקציה באופן דינמי
+                val window = (LocalContext.current as? android.app.Activity)?.window
+                if (window != null) {
+                    val backgroundColor = MaterialTheme.colorScheme.background.toArgb()
+                    val isBackgroundDark = !MaterialTheme.colorScheme.background.let { 
+                        (it.red * 0.299 + it.green * 0.587 + it.blue * 0.114) > 0.5
+                    }
+                    SideEffect {
+                        window.statusBarColor = backgroundColor
+                        WindowCompat.getInsetsController(window, window.decorView).apply {
+                            isAppearanceLightStatusBars = !isBackgroundDark
+                        }
+                    }
+                }
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

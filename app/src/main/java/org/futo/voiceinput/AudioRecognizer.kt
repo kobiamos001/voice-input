@@ -417,7 +417,7 @@ abstract class AudioRecognizer {
 
                         if(!isRecording || recorder!!.recordingState != AudioRecord.RECORDSTATE_RECORDING) break
 
-                        if(floatSamples.remaining() < 1600 && !expandSpaceIfAllowed()) {
+                        if(floatSamples.remaining() < 1600 && !expandSpaceIfAllowed()){
                             withContext(Dispatchers.Main){ finishRecognizer() }
                             break
                         }
@@ -470,10 +470,8 @@ abstract class AudioRecognizer {
 
                         val rms = sqrt(samples.sumOf { ((it.toFloat() / Short.MAX_VALUE.toFloat()).pow(2)).toDouble() } / samples.size).toFloat()
 
-                        val requiredConsecutiveSpeech = if (this@AudioRecognizer is AssistantRecognizer) 5 else 3
-                        val rmsThreshold = if (this@AudioRecognizer is AssistantRecognizer) 0.05f else 0.01f
-
-                        if(startSoundPassed && (numConsecutiveSpeech >= requiredConsecutiveSpeech || (rms > rmsThreshold && numConsecutiveSpeech >= 1))) {
+                        // שוחזר בדיוק למקור: 3 מסגרות וסינון רגיש של 0.01f
+                        if(startSoundPassed && (numConsecutiveSpeech >= 3 || (rms > 0.01f && numConsecutiveSpeech >= 1))) {
                             hasTalked = true
                             this@AudioRecognizer.hasUserTalked = true 
                         }
@@ -487,8 +485,8 @@ abstract class AudioRecognizer {
                             isMicBlocked = true
                         }
 
-                        val silenceTimeoutLimit = if (this@AudioRecognizer is AssistantRecognizer) 15 else 66
-                        if(shouldUseVad && hasTalked && (numConsecutiveNonSpeech > silenceTimeoutLimit)) {
+                        // שוחזר בדיוק למקור: 6.6 שניות (66 פריימים) לכל זיהוי
+                        if(shouldUseVad && hasTalked && (numConsecutiveNonSpeech > 66)) {
                             withContext(Dispatchers.Main){ finishRecognizer() }
                             break
                         }
@@ -540,6 +538,7 @@ abstract class AudioRecognizer {
         }
     }
 
+    private var modelTask: Job? = null
     private suspend fun runModel(){
         if(loadModelJob != null && loadModelJob!!.isActive) {
             println("Model was not finished loading...")

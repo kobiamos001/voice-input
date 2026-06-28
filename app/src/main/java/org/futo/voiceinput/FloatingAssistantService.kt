@@ -240,8 +240,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         val button = floatingButton ?: return
         val text = statusTextView ?: return
 
-        handler.removeCallbacksAndMessages(null)
-
         val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
 
@@ -294,8 +292,18 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             text.setTextColor(Color.parseColor("#4CAF50"))
         }
 
-        // עדכון ההתראה בשורת המשימות למניעת תקיעה על סטטוסים קודמים
         updateNotification("עוזר קולי: מבצע פקודה", message)
+
+        // איפוס אוטומטי של הודעות שגיאה/שקט לאחר 2 שניות
+        if (message == "לא זוהתה פקודה תקינה" || message == "לא הבנתי") {
+            handler.postDelayed({
+                val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+                val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
+                val defaultDesc = if (isSmartMode) "האזנה רציפה ברקע באנרגיה נמוכה פעילה" else "לחצן המיקרופון הצף זמין על המסך"
+                updateNotification(if (isSmartMode) "מצב עוזר חכם פעיל" else "העוזר הקולי פעיל", defaultDesc)
+                statusTextView?.visibility = View.GONE
+            }, 2000)
+        }
     }
 
     override fun onDestroy() {

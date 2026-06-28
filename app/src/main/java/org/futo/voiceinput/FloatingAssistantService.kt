@@ -101,7 +101,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             manager.createNotificationChannel(channel)
         }
 
-        // התאמת תוכן ההתראה לפי המצב הפעיל
         val title = if (isSmartMode) "מצב עוזר חכם פעיל" else "העוזר הקולי פעיל"
         val desc = if (isSmartMode) "האזנה רציפה ברקע באנרגיה נמוכה פעילה" else "לחצן המיקרופון הצף זמין על המסך"
 
@@ -115,6 +114,23 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
         } else {
             startForeground(NOTIFICATION_ID, notification)
+        }
+    }
+
+    // פונקציה לעדכון דינמי של שורת ההתראות למעלה בזמן אמת
+    private fun updateNotification(title: String, desc: String) {
+        try {
+            val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(title)
+                .setContentText(desc)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setOnlyAlertOnce(true) // מונע רטט או צליל מטריד בכל שינוי סטטוס
+                .build()
+
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.notify(NOTIFICATION_ID, notification)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -231,6 +247,9 @@ class FloatingAssistantService : Service(), LifecycleOwner {
 
         handler.removeCallbacksAndMessages(null)
 
+        val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isSmartMode = prefs.getBoolean("smart_assistant_mode", false)
+
         when (state) {
             AssistantRecognizer.State.IDLE -> {
                 button.background = GradientDrawable().apply {
@@ -240,6 +259,9 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                 handler.postDelayed({
                     text.visibility = View.GONE
                 }, 3000)
+
+                val defaultDesc = if (isSmartMode) "האזנה רציפה ברקע באנרגיה נמוכה פעילה" else "לחצן המיקרופון הצף זמין על המסך"
+                updateNotification(if (isSmartMode) "מצב עוזר חכם פעיל" else "העוזר הקולי פעיל", defaultDesc)
             }
             AssistantRecognizer.State.RECORDING -> {
                 text.visibility = View.VISIBLE
@@ -249,6 +271,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                     shape = GradientDrawable.OVAL
                     setColor(Color.parseColor("#FF5252"))
                 }
+                updateNotification("עוזר קולי: מאזין", "מאזין לדיבור שלך... 🎙️")
             }
             AssistantRecognizer.State.PROCESSING -> {
                 text.visibility = View.VISIBLE
@@ -258,6 +281,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                     shape = GradientDrawable.OVAL
                     setColor(Color.parseColor("#FFC107"))
                 }
+                updateNotification("עוזר קולי: מעבד", "מפענח ומנתח את הפקודה... ⚙️")
             }
             AssistantRecognizer.State.FINISHED -> {
                 button.background = GradientDrawable().apply {
@@ -274,6 +298,8 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             text.text = message
             text.setTextColor(Color.parseColor("#4CAF50"))
         }
+        // עדכון שורת ההתראות בטקסט הפעולה הספציפית המבוצעת כעת
+        updateNotification("עוזר קולי: מבצע פקודה", message)
     }
 
     override fun onDestroy() {
@@ -285,7 +311,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             windowManager.removeView(containerView)
         }
 
-        // שחרור ה-WakeLock בצורה מאובטחת בעת סגירת השירות
         try {
             if (wakeLock?.isHeld == true) {
                 wakeLock?.release()

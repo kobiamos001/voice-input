@@ -103,7 +103,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(desc)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_keyboard_voice)
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // API 30+
@@ -118,7 +118,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             val notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(desc)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_keyboard_voice)
                 .setOnlyAlertOnce(true) 
                 .build()
 
@@ -138,26 +138,34 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             gravity = Gravity.CENTER_VERTICAL
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = 75f
+                cornerRadius = 36f
                 setColor(Color.parseColor("#CC222222"))
             }
-            setPadding(15, 10, 30, 10)
+            setPadding(10, 6, 20, 6)
         }
 
+        // הגדרת מידות מדויקות להקטנת הלחצן לחמישית מהגודל המקורי
+        val buttonSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 36f, resources.displayMetrics
+        ).toInt()
+        val buttonParams = LinearLayout.LayoutParams(buttonSize, buttonSize)
+
         floatingButton = ImageView(this).apply {
-            setImageResource(R.mipmap.ic_launcher)
+            layoutParams = buttonParams
+            setImageResource(R.drawable.ic_keyboard_voice)
+            setColorFilter(Color.WHITE)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
                 setColor(Color.parseColor("#4CAF50"))
             }
-            setPadding(25, 25, 25, 25)
+            setPadding(8, 8, 8, 8)
         }
 
         statusTextView = TextView(this).apply {
             text = ""
             setTextColor(Color.WHITE)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-            setPadding(20, 0, 10, 0)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+            setPadding(14, 0, 8, 0)
             visibility = View.GONE
         }
 
@@ -245,6 +253,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
 
         when (state) {
             AssistantRecognizer.State.IDLE -> {
+                button.setImageResource(R.drawable.ic_keyboard_voice)
                 button.background = GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
                     setColor(Color.parseColor("#4CAF50"))
@@ -258,25 +267,28 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             }
             AssistantRecognizer.State.RECORDING -> {
                 text.visibility = View.VISIBLE
-                text.text = "מאזין... 🎙️"
+                text.text = "מאזין..."
                 text.setTextColor(Color.parseColor("#FF5252"))
+                button.setImageResource(R.drawable.ic_keyboard_voice)
                 button.background = GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
                     setColor(Color.parseColor("#FF5252"))
                 }
-                updateNotification("עוזר קולי: מאזין", "מאזין לדיבור שלך... 🎙️")
+                updateNotification("עוזר קולי: מאזין", "מאזין לדיבור שלך...")
             }
             AssistantRecognizer.State.PROCESSING -> {
                 text.visibility = View.VISIBLE
-                text.text = "מעבד... ⚙️"
+                text.text = "מעבד..."
                 text.setTextColor(Color.parseColor("#FFC107"))
+                button.setImageResource(R.drawable.ic_settings_suggest)
                 button.background = GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
                     setColor(Color.parseColor("#FFC107"))
                 }
-                updateNotification("עוזר קולי: מעבד", "מפענח ומנתח את הפקודה... ⚙️")
+                updateNotification("עוזר קולי: מעבד", "מפענח ומנתח את הפקודה...")
             }
             AssistantRecognizer.State.FINISHED -> {
+                button.setImageResource(R.drawable.ic_keyboard_voice)
                 button.background = GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
                     setColor(Color.parseColor("#4CAF50"))
@@ -286,6 +298,9 @@ class FloatingAssistantService : Service(), LifecycleOwner {
     }
 
     fun updateLiveStatus(message: String) {
+        // שומר על אייקון גלגל השיניים במהלך ביצוע הפעולה
+        floatingButton?.setImageResource(R.drawable.ic_settings_suggest)
+        
         statusTextView?.let { text ->
             text.visibility = View.VISIBLE
             text.text = message
@@ -294,7 +309,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
 
         updateNotification("עוזר קולי: מבצע פקודה", message)
 
-        // איפוס אוטומטי של הודעות שגיאה/שקט לאחר 3 שניות חזרה לסטטוס הרגיל
         if (message == "לא זוהתה פקודה תקינה" || message == "לא הבנתי") {
             handler.postDelayed({
                 val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
@@ -302,6 +316,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                 val defaultDesc = if (isSmartMode) "האזנה רציפה ברקע באנרגיה נמוכה פעילה" else "לחצן המיקרופון הצף זמין על המסך"
                 updateNotification(if (isSmartMode) "מצב עוזר חכם פעיל" else "העוזר הקולי פעיל", defaultDesc)
                 statusTextView?.visibility = View.GONE
+                floatingButton?.setImageResource(R.drawable.ic_keyboard_voice)
             }, 3000)
         }
     }

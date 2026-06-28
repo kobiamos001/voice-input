@@ -36,13 +36,11 @@ class ToggleAssistantActivity : ComponentActivity() {
                         )
                     }
 
-                    // עדכון מצב ההרשאה כאשר חוזרים מההגדרות
                     DisposableEffect(Unit) {
                         onDispose {}
                     }
 
                     if (!hasOverlayPermission) {
-                        // מסך הסבר ידידותי לבקשת הרשאה (במקום קפיצה מיידית להגדרות)
                         PermissionExplanationScreen(
                             onRequestPermission = {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -55,7 +53,6 @@ class ToggleAssistantActivity : ComponentActivity() {
                             }
                         )
                     } else {
-                        // אם ההרשאה קיימת, מציגים את מסך הבקרה הרגיל של הלחצן הצף
                         AssistantControlScreen(
                             onToggle = { enable ->
                                 if (enable) {
@@ -73,7 +70,6 @@ class ToggleAssistantActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // רענון ובדיקה מחדש של ההרשאה כשחוזרים מהגדרות המערכת
         setContent {
             UixThemeAuto {
                 Surface(

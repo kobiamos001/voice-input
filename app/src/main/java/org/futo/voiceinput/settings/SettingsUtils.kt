@@ -15,11 +15,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.RadioButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Hearing
+import androidx.compose.material.icons.filled.SettingsSuggest
+import androidx.compose.material.icons.filled.KeyboardVoice
+import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,6 +62,8 @@ import kotlinx.coroutines.flow.update
 import org.futo.voiceinput.R
 import org.futo.voiceinput.Status
 import org.futo.voiceinput.FloatingAssistantService
+import org.futo.voiceinput.MULTILINGUAL_MODELS
+import org.futo.voiceinput.startModelDownloadActivity
 import org.futo.voiceinput.payments.BillingManager
 import org.futo.voiceinput.settings.pages.AdvancedScreen
 import org.futo.voiceinput.settings.pages.CreditsScreen
@@ -116,7 +131,7 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
     }
 }
 
-// פונקציית עזר הבודקת האם שירות פעיל לפי שם המחלקה כמחרוזת טקסט בלבד (מונע קריסות Classloader)
+// פונקציית עזר הבודקת האם שירות פעיל לפי שם המחלקה כמחרוזת טקסט בלבד
 fun isServiceRunning(context: Context, className: String): Boolean {
     return try {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
@@ -133,7 +148,7 @@ fun isServiceRunning(context: Context, className: String): Boolean {
     }
 }
 
-// כותרת קטנה בצבע כחול לחלוקה לקטגוריות בסגנון מודרני ונקי
+// כותרת קטנה בצבע כחול לחלוקה לקטגוריות
 @Composable
 fun SettingCategoryHeader(title: String) {
     Text(
@@ -147,11 +162,12 @@ fun SettingCategoryHeader(title: String) {
     )
 }
 
-// פונקציית קישור מודרנית עם תמיכה בכותרת משנה (Subtitle)
+// פונקציית קישור מודרנית עם תמיכה בכותרת משנה (Subtitle) ואייקון בתחילת השורה
 @Composable
 fun SettingLink(
     title: String,
     subtitle: String? = null,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     onClick: () -> Unit
 ) {
     Row(
@@ -162,38 +178,52 @@ fun SettingLink(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(end = 16.dp)
                 )
+            }
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
         }
     }
 }
 
-// שחזור חתימת הפונקציה המקורית לתאימות מלאה עם קבצים חיצוניים הקוראים לה
+// שחזור חתימת הפונקציה המקורית לתאימות מלאה עם קריאות חיצוניות
 @Composable
 fun SettingLink(
     title: String,
     onClick: () -> Unit
 ) {
-    SettingLink(title = title, subtitle = null, onClick = onClick)
+    SettingLink(title = title, subtitle = null, icon = null, onClick = onClick)
 }
 
-// פונקציית מתג (Toggle) בעיצוב מודרני מרווח עם כותרת משנה (Subtitle)
+// פונקציית מתג (Toggle) מודרנית עם תמיכה בכותרת משנה ואייקון בתחילת השורה
 @Composable
 fun ModernSettingToggle(
     title: String,
     subtitle: String? = null,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -205,23 +235,34 @@ fun ModernSettingToggle(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .weight(1f)
                 .padding(end = 16.dp)
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp)
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(end = 16.dp)
                 )
+            }
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
         }
         Switch(
@@ -237,7 +278,7 @@ fun ModernSettingToggle(
     }
 }
 
-// תצוגת מסך בית מופשטת ומעוצבת מחדש עם חלוקה לקטגוריות
+// תצוגת מסך בית מופשטת ומעוצבת מחדש לחלוטין
 @Composable
 fun SimplifiedHomeScreen(navController: NavHostController) {
     val context = LocalContext.current
@@ -252,6 +293,30 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
     val prefs = remember { context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE) }
     var isSmartMode by remember { mutableStateOf(prefs.getBoolean("smart_assistant_mode", false)) }
 
+    // לוגיקת בחירת שפה וסינכרון מודלים ישירות במסך הבית
+    val (multilingual, setMultilingual) = useDataStore(ENABLE_MULTILINGUAL)
+    val (multilingualModelIndex, _) = useDataStore(MULTILINGUAL_MODEL_INDEX)
+    val (languages, setLanguages) = useDataStore(LANGUAGE_TOGGLES)
+
+    var showLanguageDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(listOf(multilingualModelIndex, multilingual)) {
+        if (multilingual) {
+            context.startModelDownloadActivity(listOf(MULTILINGUAL_MODELS[multilingualModelIndex]))
+        }
+    }
+
+    LaunchedEffect(languages) {
+        val userChoseEnglish = prefs.getBoolean("user_chose_english", false)
+
+        if (languages.isEmpty() || (languages.size == 1 && languages.contains("en") && !userChoseEnglish)) {
+            setLanguages(setOf("he"))
+        }
+
+        val newMultilingual = languages.count { it != "en" } > 0
+        if (multilingual != newMultilingual) setMultilingual(newMultilingual)
+    }
+
     SettingListLazy {
         item {
             ScreenTitle("העדפות", showBack = false, navController = navController)
@@ -264,14 +329,16 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
         item {
             SettingLink(
                 title = "שפות (Languages)",
-                subtitle = "הצגה במקלדת בשפות הרלוונטיות",
-                onClick = { navController.navigate("languages") }
+                subtitle = if (languages.contains("en")) "אנגלית (English)" else "עברית (ברירת מחדל)",
+                icon = Icons.Default.Language,
+                onClick = { showLanguageDialog = true }
             )
         }
         item {
             ModernSettingToggle(
                 title = "עצירה אוטומטית בשקט (עבור מקלדת)",
                 subtitle = "עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט",
+                icon = Icons.Default.Hearing,
                 checked = isVadEnabled,
                 onCheckedChange = { active -> setVadEnabled(active) }
             )
@@ -285,12 +352,12 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ModernSettingToggle(
                 title = "מצב עוזר חכם",
                 subtitle = "האזנה רציפה ברקע וזיהוי פקודות בשפות שונות",
+                icon = Icons.Default.SettingsSuggest,
                 checked = isSmartMode,
                 onCheckedChange = { active ->
                     isSmartMode = active
                     prefs.edit().putBoolean("smart_assistant_mode", active).apply()
                     
-                    // במידה והשירות רץ, מאתחלים אותו כדי להחיל את שינוי המצב
                     if (isAssistantEnabled) {
                         val intent = Intent().setClassName(context.packageName, serviceClass)
                         context.stopService(intent)
@@ -307,11 +374,11 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ModernSettingToggle(
                 title = "הפעלת שירות עוזר קולי",
                 subtitle = "הפעלת לחצן צף או שירות רקע לגישה מהירה",
+                icon = Icons.Default.KeyboardVoice,
                 checked = isAssistantEnabled,
                 onCheckedChange = { active ->
                     val intent = Intent().setClassName(context.packageName, serviceClass)
                     if (active) {
-                        // אם המשתמש לא במצב חכם והרשאת Overlay חסרה - נפנה להגדרות במקום לקרוס
                         if (!isSmartMode && !Settings.canDrawOverlays(context)) {
                             isAssistantEnabled = false
                             try {
@@ -347,6 +414,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             SettingLink(
                 title = "עזרה והדרכה",
                 subtitle = "מדריכים ופתרון בעיות נפוצות",
+                icon = Icons.Default.HelpOutline,
                 onClick = { navController.navigate("help") }
             )
         }
@@ -354,8 +422,110 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             SettingLink(
                 title = "אודות ומעקב בעיות",
                 subtitle = "מידע על האפליקציה, רישיונות ודיווח על תקלות",
+                icon = Icons.Default.Info,
                 onClick = { navController.navigate("credits") }
             )
+        }
+    }
+
+    // תיבת דו-שיח מודרנית עם פינות מעוגלות רחבות לבחירת שפה
+    if (showLanguageDialog) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { showLanguageDialog = false }
+        ) {
+            Card(
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "בחירת שפה",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    // אופציה 1: עברית
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                prefs.edit().putBoolean("user_chose_english", false).apply()
+                                setLanguages(setOf("he"))
+                                showLanguageDialog = false
+                            }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "עברית",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "עברית (ברירת מחדל)",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        RadioButton(
+                            selected = languages.contains("he"),
+                            onClick = {
+                                prefs.edit().putBoolean("user_chose_english", false).apply()
+                                setLanguages(setOf("he"))
+                                showLanguageDialog = false
+                            }
+                        )
+                    }
+
+                    // אופציה 2: אנגלית
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                prefs.edit().putBoolean("user_chose_english", true).apply()
+                                setLanguages(setOf("en"))
+                                showLanguageDialog = false
+                            }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "אנגלית (English)",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Trained on english language models",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        RadioButton(
+                            selected = languages.contains("en"),
+                            onClick = {
+                                prefs.edit().putBoolean("user_chose_english", true).apply()
+                                setLanguages(setOf("en"))
+                                showLanguageDialog = false
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }

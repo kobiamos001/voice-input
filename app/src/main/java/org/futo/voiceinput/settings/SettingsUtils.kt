@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,13 +27,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Hearing
-import androidx.compose.material.icons.filled.SettingsSuggest
-import androidx.compose.material.icons.filled.KeyboardVoice
-import androidx.compose.material.icons.filled.HelpOutline
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -162,12 +157,12 @@ fun SettingCategoryHeader(title: String) {
     )
 }
 
-// פונקציית קישור מודרנית עם תמיכה בכותרת משנה (Subtitle) ואייקון בתחילת השורה
+// פונקציית קישור מודרנית עם תמיכה בכותרת משנה (Subtitle) ואייקון מקומי מתיקיית ה-Drawable
 @Composable
 fun SettingLink(
     title: String,
     subtitle: String? = null,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    @DrawableRes iconRes: Int? = null,
     onClick: () -> Unit
 ) {
     Row(
@@ -182,9 +177,9 @@ fun SettingLink(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
         ) {
-            if (icon != null) {
+            if (iconRes != null) {
                 Icon(
-                    imageVector = icon,
+                    painter = painterResource(id = iconRes),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(end = 16.dp)
@@ -215,15 +210,15 @@ fun SettingLink(
     title: String,
     onClick: () -> Unit
 ) {
-    SettingLink(title = title, subtitle = null, icon = null, onClick = onClick)
+    SettingLink(title = title, subtitle = null, iconRes = null, onClick = onClick)
 }
 
-// פונקציית מתג (Toggle) מודרנית עם תמיכה בכותרת משנה ואייקון בתחילת השורה
+// פונקציית מתג (Toggle) מודרנית עם תמיכה בכותרת משנה ואייקון מקומי מתיקיית ה-Drawable
 @Composable
 fun ModernSettingToggle(
     title: String,
     subtitle: String? = null,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    @DrawableRes iconRes: Int? = null,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -241,9 +236,9 @@ fun ModernSettingToggle(
                 .weight(1f)
                 .padding(end = 16.dp)
         ) {
-            if (icon != null) {
+            if (iconRes != null) {
                 Icon(
-                    imageVector = icon,
+                    painter = painterResource(id = iconRes),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(end = 16.dp)
@@ -278,7 +273,7 @@ fun ModernSettingToggle(
     }
 }
 
-// תצוגת מסך בית מופשטת ומעוצבת מחדש לחלוטין
+// תצוגת מסך בית מופשטת ומעוצבת מחדש
 @Composable
 fun SimplifiedHomeScreen(navController: NavHostController) {
     val context = LocalContext.current
@@ -330,7 +325,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             SettingLink(
                 title = "שפות (Languages)",
                 subtitle = if (languages.contains("en")) "אנגלית (English)" else "עברית (ברירת מחדל)",
-                icon = Icons.Default.Language,
+                iconRes = R.drawable.ic_language,
                 onClick = { showLanguageDialog = true }
             )
         }
@@ -338,7 +333,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ModernSettingToggle(
                 title = "עצירה אוטומטית בשקט (עבור מקלדת)",
                 subtitle = "עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט",
-                icon = Icons.Default.Hearing,
+                iconRes = R.drawable.ic_hearing,
                 checked = isVadEnabled,
                 onCheckedChange = { active -> setVadEnabled(active) }
             )
@@ -352,7 +347,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ModernSettingToggle(
                 title = "מצב עוזר חכם",
                 subtitle = "האזנה רציפה ברקע וזיהוי פקודות בשפות שונות",
-                icon = Icons.Default.SettingsSuggest,
+                iconRes = R.drawable.ic_settings_suggest,
                 checked = isSmartMode,
                 onCheckedChange = { active ->
                     isSmartMode = active
@@ -374,7 +369,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ModernSettingToggle(
                 title = "הפעלת שירות עוזר קולי",
                 subtitle = "הפעלת לחצן צף או שירות רקע לגישה מהירה",
-                icon = Icons.Default.KeyboardVoice,
+                iconRes = R.drawable.ic_keyboard_voice,
                 checked = isAssistantEnabled,
                 onCheckedChange = { active ->
                     val intent = Intent().setClassName(context.packageName, serviceClass)
@@ -414,7 +409,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             SettingLink(
                 title = "עזרה והדרכה",
                 subtitle = "מדריכים ופתרון בעיות נפוצות",
-                icon = Icons.Default.HelpOutline,
+                iconRes = R.drawable.ic_help_outline,
                 onClick = { navController.navigate("help") }
             )
         }
@@ -422,13 +417,13 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             SettingLink(
                 title = "אודות ומעקב בעיות",
                 subtitle = "מידע על האפליקציה, רישיונות ודיווח על תקלות",
-                icon = Icons.Default.Info,
+                iconRes = R.drawable.ic_info,
                 onClick = { navController.navigate("credits") }
             )
         }
     }
 
-    // תיבת דו-שיח מודרנית עם פינות מעוגלות רחבות לבחירת שפה
+    // תיבת דו-שיח מודרנית לבחירת שפה
     if (showLanguageDialog) {
         androidx.compose.ui.window.Dialog(
             onDismissRequest = { showLanguageDialog = false }
@@ -564,7 +559,6 @@ fun SettingsMain(
         navController = navController,
         startDestination = "home"
     ) {
-        // טעינת מסך הבית המופשט החדש
         composable("home") { SimplifiedHomeScreen(navController) }
         composable("advanced") { AdvancedScreen(settingsViewModel, navController) }
         composable("help") { HelpScreen(navController) }

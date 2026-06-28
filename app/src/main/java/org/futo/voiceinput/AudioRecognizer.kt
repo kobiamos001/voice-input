@@ -190,13 +190,20 @@ abstract class AudioRecognizer {
 
     private suspend fun tryLoadModelOrCancel(primaryModel: ModelData, secondaryModelP: ModelData?) {
         val secondaryModel = if(context.getSetting(USE_LANGUAGE_SPECIFIC_MODELS)) { secondaryModelP } else { null }
+        
+        // אכיפת עברית כברירת מחדל בעת מסירת השפות למנוע ה-Whisper
+        var languages = context.getSetting(LANGUAGE_TOGGLES)
+        if (languages.isEmpty() || (languages.size == 1 && languages.contains("en"))) {
+            languages = setOf("he")
+        }
+
         try {
             model = WhisperModelWrapper(
                 context,
                 primaryModel,
                 secondaryModel,
                 context.getSetting(DISALLOW_SYMBOLS),
-                context.getSetting(LANGUAGE_TOGGLES),
+                languages, // מעביר כעת את רשימת השפות המאולצת לעברית
                 onStatusUpdate = {
                     decodingStatus(it)
                 },

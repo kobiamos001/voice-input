@@ -7,12 +7,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -53,9 +58,6 @@ import org.futo.voiceinput.settings.pages.PaymentScreen
 import org.futo.voiceinput.settings.pages.PaymentThankYouScreen
 import org.futo.voiceinput.settings.pages.TestScreen
 import org.futo.voiceinput.settings.pages.ThemeScreen
-
-// ייבוא מפורש של ה-SettingLink מתת-החבילה של הדפים
-import org.futo.voiceinput.settings.pages.SettingLink
 
 
 data class SettingsUiState(
@@ -108,6 +110,34 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
     }catch(e: ActivityNotFoundException) {
         println("Failed to open ACTION_APPLICATION_DETAILS_SETTINGS")
     }
+}
+
+// מימוש עצמאי, יציב וחסין-שגיאות של שורת הגדרה לחיצה (SettingLink)
+@Composable
+fun SettingLink(
+    title: String,
+    onClick: () -> Unit
+) {
+    ListItem(
+        headlineContent = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+        },
+        trailingContent = {
+            Text(
+                text = "<", // חץ מעוצב מותאם כיוונית לעברית (RTL) ללא תלות באייקונים חיצוניים
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        modifier = Modifier
+            .clickable { onClick() }
+            .fillMaxWidth()
+    )
 }
 
 // תצוגת מסך בית מופשטת המציגה אך ורק את השפות, הגדרות הקלט, ומתג העוזר הקולי

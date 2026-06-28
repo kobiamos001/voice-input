@@ -60,9 +60,6 @@ import org.futo.voiceinput.settings.pages.PaymentThankYouScreen
 import org.futo.voiceinput.settings.pages.TestScreen
 import org.futo.voiceinput.settings.pages.ThemeScreen
 
-// ייבוא של ה-SettingLink מתת-החבילה של הדפים
-import org.futo.voiceinput.settings.pages.SettingLink
-
 
 data class SettingsUiState(
     val intentResultText: String = "...",
@@ -116,6 +113,7 @@ fun Context.openSystemDefaultsSettings(component: ComponentName) {
     }
 }
 
+// פונקציית עזר הבודקת האם שירות פעיל לפי שם המחלקה כמחרוזת טקסט בלבד (מונע קריסות Classloader)
 fun isServiceRunning(context: Context, className: String): Boolean {
     return try {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
@@ -132,16 +130,31 @@ fun isServiceRunning(context: Context, className: String): Boolean {
     }
 }
 
-// מעטפת נקייה המקשרת ישירות ל-SettingLink המקורי של FUTO
+// מימוש עצמאי, יציב וחסין-שגיאות לחלוטין של שורת הגדרה לחיצה (SettingLink)
 @Composable
 fun SettingLink(
     title: String,
     onClick: () -> Unit
 ) {
-    org.futo.voiceinput.settings.SettingLink(
-        title = title,
-        onClick = onClick
-    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = 24.dp, vertical = 20.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = "<", // חץ מעוצב RTL מותאם לעברית ללא תלות באייקונים חיצוניים
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
 
 // תצוגת מסך בית מופשטת ומעוצבת מחדש לחלוטין

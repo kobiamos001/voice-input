@@ -59,7 +59,6 @@ abstract class AudioRecognizer {
     private var isRecording = false
     private var recorder: AudioRecord? = null
 
-    // משתנה למעקב האם המשתמש באמת דיבר (מונע הזיות בשקט מוחלט)
     var hasUserTalked = false 
 
     fun isCurrentlyRecording(): Boolean {
@@ -76,7 +75,6 @@ abstract class AudioRecognizer {
     private var canExpandSpace = true
     private fun expandSpaceIfAllowed(): Boolean {
         if(canExpandSpace) {
-            // Allocate an extra 30 seconds
             val newSampleBuffer = FloatBuffer.allocate(floatSamples.capacity() + 16000 * 30)
             newSampleBuffer.put(floatSamples.array(), 0, floatSamples.capacity() - floatSamples.remaining())
             floatSamples = newSampleBuffer
@@ -133,9 +131,6 @@ abstract class AudioRecognizer {
         recorderJob?.cancel()
         isRecording = false
 
-        floatSamples.clear()
-
-        // מניעת נעילת קורוטינה (Deadlock): שחרור אסינכרוני בטוח של המודל ברקע
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isContinuous = prefs.getBoolean("continuous_listening", false)
 
@@ -207,7 +202,17 @@ abstract class AudioRecognizer {
             languages = setOf("he")
         }
 
-        val languagesToUse = if (forcedLanguage != null) setOf(forcedLanguage!!) else languages
+        // שינוי שפת היעד למודל ה-Whisper לצורך תרגום מובנה (רק עבור הקלדה קולית במקלדת ולא עבור העוזר)
+        val isTranslationEnabled = prefs.getBoolean("enable_translation", false)
+        var languagesToUse = if (forcedLanguage != null) setOf(forcedLanguage!!) else languages
+
+        if (isTranslationEnabled && this !is AssistantRecognizer) {
+            if (forcedLanguage == "he" || languages.contains("he")) {
+                languagesToUse = setOf("en")
+            } else if (forcedLanguage == "en" || languages.contains("en")) {
+                languagesToUse = setOf("he")
+            }
+        }
 
         try {
             model = WhisperModelWrapper(
@@ -306,24 +311,6 @@ abstract class AudioRecognizer {
     private var forcedLanguage: String? = null
     fun forceLanguage(language: String?) {
         forcedLanguage = language
-    }
-
-    fun create() {
-        loading()
-
-        if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            needPermission()
-        } else {
-            startRecording()
-        }
-    }
-
-    fun permissionResultGranted() {
-        startRecording()
-    }
-
-    fun permissionResultRejected() {
-        permissionRejected()
     }
 
     private fun startRecording(numTries: Int = 0) {
@@ -540,6 +527,7 @@ abstract class AudioRecognizer {
         }
     }
 
+    private var modelTask: Job? = null
     private suspend fun runModel(){
         if(loadModelJob != null && loadModelJob!!.isActive) {
             println("Model was not finished loading...")
@@ -556,8 +544,23 @@ abstract class AudioRecognizer {
         val decodingMode = if(context.getSetting(BEAM_SEARCH)){ DecodingMode.BeamSearch5 } else { DecodingMode.Greedy }
 
         yield()
+
+        // קביעת שפת היעד של הפענוח לצורך תרגום אופליין מבוסס מודל (רק להקלדה קולית ולא לעוזר)
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isTranslationEnabled = prefs.getBoolean("enable_translation", false)
+        var targetForcedLanguage = forcedLanguage
+
+        if (isTranslationEnabled && this !is AssistantRecognizer) {
+            var languages = context.getSetting(LANGUAGE_TOGGLES)
+            if (forcedLanguage == "he" || languages.contains("he")) {
+                targetForcedLanguage = "en"
+            } else if (forcedLanguage == "en" || languages.contains("en")) {
+                targetForcedLanguage = "he"
+            }
+        }
+
         val text = try {
-            model!!.run(floatArray, words, forcedLanguage, decodingMode)
+            model!!.run(floatArray, words, targetForcedLanguage, decodingMode)
         } catch(e: OutOfMemoryError) {
             decodingStatus(RunState.OOMError)
             model!!.close()
@@ -575,7 +578,6 @@ abstract class AudioRecognizer {
             return runModel()
         }
 
-        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isContinuous = prefs.getBoolean("continuous_listening", false)
 
         if (this !is AssistantRecognizer || !isContinuous) {

@@ -324,7 +324,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ScreenTitle("העדפות", showBack = false, navController = navController)
         }
 
-        // 1. מקטע ראשון: הקלטה קולית (למעלה)
+        // 1. מקטע ראשון: הקלטה קולית
         item {
             SettingCategoryHeader("הקלטה קולית")
         }
@@ -380,7 +380,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ModernSettingToggle(
                 title = "האזנה רציפה",
                 subtitle = "הפעלה והאזנה תמידית לפקודות קוליות ברקע",
-                iconRes = R.drawable.ic_hearing,
+                iconRes = R.drawable.ic_continuous_listening, // מעודכן לאייקון שעון/זמן הייעודי החדש
                 checked = isContinuousListening,
                 onCheckedChange = { active ->
                     isContinuousListening = active
@@ -407,7 +407,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ModernSettingToggle(
                 title = "עצירה אוטומטית בשקט (עבור מקלדת)",
                 subtitle = "עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט",
-                iconRes = R.drawable.ic_hearing,
+                iconRes = R.drawable.ic_hearing, // מעודכן לאייקון רמקול מושתק החדש והמתאים ביותר
                 checked = isVadEnabled,
                 onCheckedChange = { active -> setVadEnabled(active) }
             )
@@ -646,7 +646,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                                 )
                             }
 
-                            // שורת אימייל
+                            // שורת איมייל
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()

@@ -273,4 +273,6 @@
     <string name="command_executing_stop">Stopping music…</string>
     <string name="command_not_understood">I didn\'t understand</string>
 
+    <string name="app_description">The voice assistant allows you to perform voice typing and device actions using voice commands.</string>
+
 </resources>

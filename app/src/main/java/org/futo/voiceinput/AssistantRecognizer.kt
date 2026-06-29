@@ -29,11 +29,10 @@ class AssistantRecognizer(
     override fun processing() { onStateChanged(State.PROCESSING) }
 
     override fun finished(result: String) {
-        onStateChanged(State.FINISHED)
-
+        // הוסר עדכון המצב הירוק המוקדם מכאן. הלחצן יישאר בצהוב (PROCESSING) לאורך כל הרצת הפענוח והביצוע.
         val trimmedResult = result.trim()
         if (context is FloatingAssistantService) {
-            // ביצוע הפקודה באופן מיידי וללא שיהוי
+            // ביצוע הפקודה באופן מיידי. הלחצן יוחזר לירוק רק מתוך updateLiveStatus עם סיום הפעולה.
             CommandParser.parseAndExecute(context, trimmedResult) { statusMessage ->
                 (context as FloatingAssistantService).updateLiveStatus(statusMessage)
             }
@@ -42,7 +41,6 @@ class AssistantRecognizer(
         }
         
         reset()
-        onStateChanged(State.IDLE)
     }
 
     override fun cancelled() {

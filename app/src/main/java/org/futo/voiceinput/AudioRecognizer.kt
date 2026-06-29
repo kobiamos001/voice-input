@@ -202,7 +202,7 @@ abstract class AudioRecognizer {
             languages = setOf("he")
         }
 
-        // שינוי שפת היעד למודל ה-Whisper לצורך תרגום מובנה (רק עבור הקלדה קולית במקלדת ולא עבור העוזר)
+        // שינוי שפת היעד למודל ה-Whisper לצורך תרגום מובנה בזמן הפענוח (רק עבור הקלדה קולית במקלדת ולא עבור העוזר)
         val isTranslationEnabled = prefs.getBoolean("enable_translation", false)
         var languagesToUse = if (forcedLanguage != null) setOf(forcedLanguage!!) else languages
 
@@ -311,6 +311,24 @@ abstract class AudioRecognizer {
     private var forcedLanguage: String? = null
     fun forceLanguage(language: String?) {
         forcedLanguage = language
+    }
+
+    fun create() {
+        loading()
+
+        if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            needPermission()
+        } else {
+            startRecording()
+        }
+    }
+
+    fun permissionResultGranted() {
+        startRecording()
+    }
+
+    fun permissionResultRejected() {
+        permissionRejected()
     }
 
     private fun startRecording(numTries: Int = 0) {
@@ -504,115 +522,4 @@ abstract class AudioRecognizer {
 
                         while(true){
                             yield()
-                            val nRead2 = recorder!!.read(samples, 0, 1600, AudioRecord.READ_NON_BLOCKING)
-                            if(nRead2 > 0) {
-                                if(floatSamples.remaining() < nRead2 && !expandSpaceIfAllowed()){
-                                    yield()
-                                    withContext(Dispatchers.Main){ finishRecognizer() }
-                                    break
-                                }
-                                floatSamples.put(samples.sliceArray(0 until nRead2).map { it.toFloat() / Short.MAX_VALUE.toFloat() }.toFloatArray())
-                            } else {
-                                break
-                            }
-                        }
-                    }
-                }
-            }
-
-            loadModel()
-            recordingStarted()
-        } catch(e: SecurityException){
-            needPermission()
-        }
-    }
-
-    private var modelTask: Job? = null
-    private suspend fun runModel(){
-        if(loadModelJob != null && loadModelJob!!.isActive) {
-            println("Model was not finished loading...")
-            loadModelJob!!.join()
-        }else if(model == null) {
-            println("Model was null by the time runModel was called...")
-            loadModel()
-            loadModelJob!!.join()
-        }
-
-        val floatArray = floatSamples.array().sliceArray(0 until floatSamples.position())
-
-        val words = context.getSetting(PERSONAL_DICTIONARY)
-        val decodingMode = if(context.getSetting(BEAM_SEARCH)){ DecodingMode.BeamSearch5 } else { DecodingMode.Greedy }
-
-        yield()
-
-        // קביעת שפת היעד של הפענוח לצורך תרגום אופליין מבוסס מודל (רק להקלדה קולית ולא לעוזר)
-        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
-        val isTranslationEnabled = prefs.getBoolean("enable_translation", false)
-        var targetForcedLanguage = forcedLanguage
-
-        if (isTranslationEnabled && this !is AssistantRecognizer) {
-            var languages = context.getSetting(LANGUAGE_TOGGLES)
-            if (forcedLanguage == "he" || languages.contains("he")) {
-                targetForcedLanguage = "en"
-            } else if (forcedLanguage == "en" || languages.contains("en")) {
-                targetForcedLanguage = "he"
-            }
-        }
-
-        val text = try {
-            model!!.run(floatArray, words, targetForcedLanguage, decodingMode)
-        } catch(e: OutOfMemoryError) {
-            decodingStatus(RunState.OOMError)
-            model!!.close()
-            model = null
-            loadModelJob = null
-
-            for(i in 0 until 2) {
-                System.gc()
-                System.runFinalization()
-                delay(500L)
-            }
-
-            loadModel()
-
-            return runModel()
-        }
-
-        val isContinuous = prefs.getBoolean("continuous_listening", false)
-
-        if (this !is AssistantRecognizer || !isContinuous) {
-            model!!.close()
-            model = null
-        }
-
-        lifecycleScope.launch {
-            withContext(Dispatchers.Main) {
-                if (!hasUserTalked || text.trim().length < 2) {
-                    cancelled()
-                } else {
-                    finished(text)
-                }
-            }
-        }
-    }
-
-    private fun onFinishRecording() {
-        if(!isRecording) {
-            throw IllegalStateException("Should not call onFinishRecording when not recording")
-        }
-
-        isRecording = false
-
-        recorderJob?.cancel()
-        recorder?.stop()
-        unfocusAudio()
-
-        processing()
-
-        modelJob = lifecycleScope.launch {
-            withContext(Dispatchers.Default) {
-                runModel()
-            }
-        }
-    }
-}
+                            val nRead2 = recorder!!.read(samples,

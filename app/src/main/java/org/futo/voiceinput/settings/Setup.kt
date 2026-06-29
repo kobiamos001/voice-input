@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -218,32 +219,8 @@ fun SetupBlacklistedKeyboardWarning(
         "Let me continue"
     ), onClick: () -> Unit = { }
 ) {
-
-    SetupContainer {
-        Text(
-            stringResource(R.string.incompatible_keyboard),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            info.details,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.fillMaxWidth(),
-            style = Typography.bodyMedium
-        )
-        Button(
-            onClick = onClick,
-            shape = CircleShape,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp, bottom = 16.dp)
-        ) {
-            Text(info.dismiss, style = MaterialTheme.typography.labelLarge)
-        }
+    LaunchedEffect(Unit) {
+        onClick()
     }
 }
 

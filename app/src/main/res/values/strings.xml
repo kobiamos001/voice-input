@@ -1,6 +1,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Voice Assistant</string>
-    <string name="voice_input_method">Voice Assistant Method</string>
+    <string name="voice_input_method">Voice Assistant</string>
     <string name="support_email" translatable="false">voiceinput@futo.org</string>
     <string name="suppress_non_speech_annotations">Suppress non-speech annotations</string>
     <string name="suppress_non_speech_annotations_subtitle">[cough], [music], etc</string>
@@ -18,8 +18,8 @@
     <string name="view_other_dependencies">View Other Dependencies</string>
     <string name="name_legal">The authors, contributors or copyright holders listed above are not affiliated with this product and do not endorse or promote this product. Reference to the authors, contributors or copyright holders is solely for attribution purposes. Mention of their names does not imply approval or endorsement.</string>
     <string name="just_a_demonstration">This is just a demonstration of how Voice Input looks</string>
-    <string name="help_paragraph_1">To use voice input within supported apps and keyboards, press the microphone icon.</string>
-    <string name="help_paragraph_2">To use voice input on unsupported keyboards, change the device\'s input method to the Voice Assistant.</string>
+    <string name="help_paragraph_1">• To use voice input within supported apps and keyboards, press the microphone icon.</string>
+    <string name="help_paragraph_2">• To use voice input on unsupported keyboards, change the device\'s input method to the Voice Assistant.</string>
     <string name="voice_input_will_look_like_this">Voice Input will look like this</string>
     <string name="look_for_the_big_off_center_futo_logo_in_the_background">Look for the big off-center FUTO logo in the background!</string>
     <string name="stop_recording">Stop Recording</string>

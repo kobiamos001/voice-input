@@ -299,9 +299,8 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
 
-    // טעינת הגדרות העוזר ומצב תרגום
+    // טעינת הגדרת האזנה רציפה
     var isContinuousListening by remember { mutableStateOf(prefs.getBoolean("continuous_listening", false)) }
-    var isTranslationEnabled by remember { mutableStateOf(prefs.getBoolean("enable_translation", false)) }
 
     LaunchedEffect(listOf(multilingualModelIndex, multilingual)) {
         if (multilingual) {
@@ -325,7 +324,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ScreenTitle("העדפות", showBack = false, navController = navController)
         }
 
-        // 1. מקטע ראשון: הקלטה קולית (עלה למעלה)
+        // 1. מקטע ראשון: הקלטה קולית (למעלה)
         item {
             SettingCategoryHeader("הקלטה קולית")
         }
@@ -337,20 +336,8 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                 onClick = { showLanguageDialog = true }
             )
         }
-        item {
-            ModernSettingToggle(
-                title = "מצב תרגום",
-                subtitle = "תרגום אוטומטי של הדיבור (עברית לאנגלית ולהפך)",
-                iconRes = R.drawable.ic_language,
-                checked = isTranslationEnabled,
-                onCheckedChange = { active ->
-                    isTranslationEnabled = active
-                    prefs.edit().putBoolean("enable_translation", active).apply()
-                }
-            )
-        }
 
-        // 2. מקטע שני: עוזר קולי (עבר למרכז)
+        // 2. מקטע שני: עוזר קולי
         item {
             SettingCategoryHeader("עוזר קולי")
         }
@@ -412,7 +399,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
 
-        // 3. מקטע שלישי: כללי (חדש - מתחת להקלטה ועוזר)
+        // 3. מקטע שלישי: כללי
         item {
             SettingCategoryHeader("כללי")
         }

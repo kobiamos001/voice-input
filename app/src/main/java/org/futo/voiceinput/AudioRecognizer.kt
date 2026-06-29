@@ -131,24 +131,26 @@ abstract class AudioRecognizer {
         isVADPaused = false
         recorder?.stop()
         recorderJob?.cancel()
-        modelJob?.cancel()
         isRecording = false
 
         floatSamples.clear()
 
-        unfocusAudio()
-
-        // השארת המודל טעון בזיכרון דרך קבע עבור האזנה רציפה - נמנע סגירה של המודל
+        // מניעת נעילת קורוטינה (Deadlock): שחרור אסינכרוני בטוח של המודל ברקע
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isContinuous = prefs.getBoolean("continuous_listening", false)
 
         if (!isContinuous) {
-            lifecycleScope.launch {
-                modelJob?.join()
-                model?.close()
-                model = null
+            val modelToClose = model
+            model = null
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    modelToClose?.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
+        unfocusAudio()
     }
 
     protected fun openPermissionSettings() {
@@ -197,7 +199,6 @@ abstract class AudioRecognizer {
     private suspend fun tryLoadModelOrCancel(primaryModel: ModelData, secondaryModelP: ModelData?) {
         val secondaryModel = if(context.getSetting(USE_LANGUAGE_SPECIFIC_MODELS)) { secondaryModelP } else { null }
         
-        // עקיפה דינמית: עברית כברירת מחדל רק אם המשתמש לא בחר ידנית באנגלית במקלדת
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val userChoseEnglish = prefs.getBoolean("user_chose_english", false)
 
@@ -539,7 +540,6 @@ abstract class AudioRecognizer {
         }
     }
 
-    private var modelTask: Job? = null
     private suspend fun runModel(){
         if(loadModelJob != null && loadModelJob!!.isActive) {
             println("Model was not finished loading...")

@@ -299,8 +299,9 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
     var showAboutDialog by remember { mutableStateOf(false) }
     var showAssistantTypeDialog by remember { mutableStateOf(false) }
 
-    // טעינת סוג העוזר הנבחר
+    // טעינת הגדרות העוזר
     var assistantType by remember { mutableStateOf(prefs.getString("assistant_type", "floating") ?: "floating") }
+    var isContinuousListening by remember { mutableStateOf(prefs.getBoolean("continuous_listening", false)) }
 
     LaunchedEffect(listOf(multilingualModelIndex, multilingual)) {
         if (multilingual) {
@@ -324,7 +325,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             ScreenTitle("העדפות", showBack = false, navController = navController)
         }
 
-        // 1. מקטע ראשון: עוזר קולי (הועלה למעלה)
+        // 1. מקטע ראשון: עוזר קולי
         item {
             SettingCategoryHeader("עוזר קולי")
         }
@@ -364,6 +365,28 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
         item {
+            ModernSettingToggle(
+                title = "האזנה רציפה",
+                subtitle = "הפעלה והאזנה תמידית לפקודות קוליות ברקע",
+                iconRes = R.drawable.ic_hearing,
+                checked = isContinuousListening,
+                onCheckedChange = { active ->
+                    isContinuousListening = active
+                    prefs.edit().putBoolean("continuous_listening", active).apply()
+                    
+                    if (isAssistantEnabled) {
+                        val intent = Intent().setClassName(context.packageName, serviceClass)
+                        context.stopService(intent)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            context.startForegroundService(intent)
+                        } else {
+                            context.startService(intent)
+                        }
+                    }
+                }
+            )
+        }
+        item {
             SettingLink(
                 title = "סוג עוזר קולי",
                 subtitle = if (assistantType == "floating") "לחצן צף" else "התראה בשורת ההתראות",
@@ -372,7 +395,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
             )
         }
 
-        // 2. מקטע שני: הקלדה קולית (הורד למטה)
+        // 2. מקטע שני: הקלדה קולית
         item {
             SettingCategoryHeader("הקלדה קולית")
         }

@@ -321,17 +321,17 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
 
     SettingListLazy {
         item {
-            ScreenTitle("העדפות", showBack = false, navController = navController)
+            ScreenTitle(stringResource(R.string.screen_title_preferences), showBack = false, navController = navController)
         }
 
         // 1. מקטע ראשון: הקלטה קולית
         item {
-            SettingCategoryHeader("הקלטה קולית")
+            SettingCategoryHeader(stringResource(R.string.category_voice_recording))
         }
         item {
             SettingLink(
-                title = "שפות (Languages)",
-                subtitle = if (languages.contains("en")) "אנגלית (English)" else "עברית (ברירת מחדל)",
+                title = stringResource(R.string.languages_title_main),
+                subtitle = if (languages.contains("en")) stringResource(R.string.languages_subtitle_english) else stringResource(R.string.languages_subtitle_hebrew),
                 iconRes = R.drawable.ic_language,
                 onClick = { showLanguageDialog = true }
             )
@@ -339,12 +339,12 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
 
         // 2. מקטע שני: עוזר קולי
         item {
-            SettingCategoryHeader("עוזר קולי")
+            SettingCategoryHeader(stringResource(R.string.category_voice_assistant))
         }
         item {
             ModernSettingToggle(
-                title = "הפעלת שירות עוזר קולי",
-                subtitle = "הפעלת לחצן צף או שירות רקע לגישה מהירה",
+                title = stringResource(R.string.toggle_assistant_title),
+                subtitle = stringResource(R.string.toggle_assistant_subtitle),
                 iconRes = R.drawable.ic_keyboard_voice,
                 checked = isAssistantEnabled,
                 onCheckedChange = { active ->
@@ -378,8 +378,8 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
         }
         item {
             ModernSettingToggle(
-                title = "האזנה רציפה",
-                subtitle = "הפעלה והאזנה תמידית לפקודות קוליות ברקע",
+                title = stringResource(R.string.toggle_continuous_title),
+                subtitle = stringResource(R.string.toggle_continuous_subtitle),
                 iconRes = R.drawable.ic_continuous_listening, // מעודכן לאייקון שעון/זמן הייעודי החדש
                 checked = isContinuousListening,
                 onCheckedChange = { active ->
@@ -401,12 +401,12 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
 
         // 3. מקטע שלישי: כללי
         item {
-            SettingCategoryHeader("כללי")
+            SettingCategoryHeader(stringResource(R.string.category_general))
         }
         item {
             ModernSettingToggle(
-                title = "עצירה אוטומטית בשקט (עבור מקלדת)",
-                subtitle = "עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט",
+                title = stringResource(R.string.toggle_vad_title),
+                subtitle = stringResource(R.string.toggle_vad_subtitle),
                 iconRes = R.drawable.ic_hearing, // מעודכן לאייקון רמקול מושתק החדש והמתאים ביותר
                 checked = isVadEnabled,
                 onCheckedChange = { active -> setVadEnabled(active) }
@@ -415,20 +415,20 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
 
         // 4. מקטע רביעי: עזרה
         item {
-            SettingCategoryHeader("עזרה")
+            SettingCategoryHeader(stringResource(R.string.category_help))
         }
         item {
             SettingLink(
-                title = "עזרה והדרכה",
-                subtitle = "מדריכים ופתרון בעיות נפוצות",
+                title = stringResource(R.string.link_help_title),
+                subtitle = stringResource(R.string.link_help_subtitle),
                 iconRes = R.drawable.ic_help_outline,
                 onClick = { navController.navigate("help") }
             )
         }
         item {
             SettingLink(
-                title = "אודות ומעקב בעיות",
-                subtitle = "מידע על האפליקציה, רישיונות ודיווח על תקלות",
+                title = stringResource(R.string.link_about_title),
+                subtitle = stringResource(R.string.link_about_subtitle),
                 iconRes = R.drawable.ic_info,
                 onClick = { showAboutDialog = true }
             )
@@ -456,7 +456,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = "בחירת שפה",
+                        text = stringResource(R.string.dialog_choose_language),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -477,7 +477,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                     ) {
                         Column {
                             Text(
-                                text = "עברית",
+                                text = stringResource(R.string.language_hebrew_option),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -507,7 +507,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                     ) {
                         Column {
                             Text(
-                                text = "אנגלית (English)",
+                                text = stringResource(R.string.language_english_option),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -526,7 +526,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
         }
     }
 
-    // תיבת דו-שיח מודרנית עבור אודות בהתאם לקוד המבוקש בדיוק
+    // תיבת דו-שיח מודרנית עבור אודות בהתאם לקוד המבוקש בדיוק (ללא שינוי או הוצאה לקובץ חיצוני)
     if (showAboutDialog) {
         androidx.compose.ui.window.Dialog(
             onDismissRequest = { showAboutDialog = false }

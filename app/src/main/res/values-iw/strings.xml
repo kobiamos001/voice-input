@@ -1,6 +1,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">FUTO Voice Input</string>
-    <string name="voice_input_method">שיטת הקלדה קולית FUTO</string>
+    <string name="app_name">עוזר קולי</string>
+    <string name="voice_input_method">עוזר קולי</string>
     <string name="support_email" translatable="false">voiceinput@futo.org</string>
     <string name="suppress_non_speech_annotations">הסתרת הערות שאינן דיבור</string>
     <string name="suppress_non_speech_annotations_subtitle">[שיעול], [מוזיקה], וכדומה</string>
@@ -73,7 +73,7 @@
     <string name="processing">מעבד…</string>
     <string name="initializing">מאתחל…</string>
     <string name="cancel">ביטול</string>
-    <string name="futo_logo">לוגו FUTO</string>
+    <string name="futo_logo">לוגו Voice Assistant</string>
     <string name="enable_ime_body">כדי להשתלב במקלדות קיימות, עליך להפעיל את שיטת ההקלדה הקולית.</string>
     <string name="open_input_method_settings">פתח הגדרות שיטת קלט</string>
     <string name="step_1_of_2">שלב 1 מתוך 2</string>
@@ -81,9 +81,9 @@
     <string name="grant_microphone_body">על מנת להשתמש בהקלדה קולית, עליך להעניק הרשאת מיקרופון.</string>
     <string name="grant_microphone_permission">הענק גישה למיקרופון</string>
     <string name="incompatible_keyboard">מקלדת לא תואמת</string>
-    <string name="gboard_incompatible_details">נראה כי אתה משתמש ב-Gboard. מקלדת זו אינה תואמת להקלדה קולית FUTO.\n\nGboard מסתמכת על מערכת הקלדה קולית משלה ונראה שכרגע היא אינה משתלבת עם ממשקי ה-API הסטנדרטיים של Android להקלדה קולית. יהיה עליך להשתמש במקלדת אחרת אם ברצונך להשתמש בהקלדה קולית FUTO עם המקלדת שלך.\n\nאנא בקר בדף העזרה בהגדרות למידע נוסף.</string>
+    <string name="gboard_incompatible_details">נראה כי אתה משתמש ב-Gboard. מקלדת זו אינה תואמת להקלדה קולית Voice Assistant.\n\nGboard מסתמכת על מערכת הקלדה קולית משלה ונראה שכרגע היא אינה משתלבת עם ממשקי ה-API הסטנדרטיים של Android להקלדה קולית. יהיה עליך להשתמש במקלדת אחרת אם ברצונך להשתמש בהקלדה קולית Voice Assistant עם המקלדת שלך.\n\nאנא בקר בדף העזרה בהגדרות למידע נוסף.</string>
     <string name="gboard_incompatible_accept">אני מבין ש-Gboard אינה תואמת</string>
-    <string name="typewise_incompatible_details">נראה כי אתה משתמש ב-Typewise. למקלדת זו אין כפתור הקלדה קולית כרגע, לכן תצטרך להשתמש במקלדת אחרת אם ברצונך להשתמש בהקלדה קולית FUTO עם המקלדת שלך.</string>
+    <string name="typewise_incompatible_details">נראה כי אתה משתמש ב-Typewise. למקלדת זו אין כפתור הקלדה קולית כרגע, לכן תצטרך להשתמש במקלדת אחרת אם ברצונך להשתמש בהקלדה קולית Voice Assistant עם המקלדת שלך.</string>
     <string name="typewise_incompatible_accept">I understand Typewise is incompatible</string>
     <string name="intent_result_is_null_or_empty">תוצאת ה-Intent היא ריקה או null</string>
     <string name="intent_was_cancelled">ה-Intent בוטל</string>
@@ -150,7 +150,7 @@
     <string name="wrong_default_body">נראה כי אפליקציית ההקלדה הקולית המוגדרת כברירת מחדל היא אפליקציה אחרת (<xliff:g name="package" example="com.example.example">%s</xliff:g>). ייתכן שתרצה לשנות זאת.</string>
     <string name="clear_app_s_defaults">נקה את ברירות המחדל של האפליקציה</string>
     <string name="dismiss">סגור</string>
-    <string name="samsung_keyboard_incompatible_details">נראה כי אתה משתמש במקלדת סמסונג.\n\nלמרבה הצער, מקלדת סמסונג מוגדרת כעת בקוד קשיח לאפשר בחירה רק בין הקלדה קולית של סמסונג להקלדה קולית של גוגל. תצטרך להשתמש במקלדת אחרת אם ברצונך להפעיל את הקלדה קולית FUTO מהמקלדת שלך.\n\nאנא בקר בדף העזרה בהגדרות למידע נוסף.</string>
+    <string name="samsung_keyboard_incompatible_details">נראה כי אתה משתמש במקלדת סמסונג.\n\nלמרבה הצער, מקלדת סמסונג מוגדרת כעת בקוד קשיח לאפשר בחירה רק בין הקלדה קולית של סמסונג להקלדה קולית של גוגל. תצטרך להשתמש במקלדת אחרת אם ברצונך להפעיל את הקלדה קולית Voice Assistant מהמקלדת שלך.\n\nאנא בקר בדף העזרה בהגדרות למידע נוסף.</string>
     <string name="samsung_keyboard_incompatible_accept">אני מבין שמקלדת סמסונג אינה תואמת</string>
     <string name="payment_complete">התשלום הושלם</string>
     <string name="model_downloader">מוריד מודלים</string>
@@ -213,5 +213,64 @@
     <string name="sustainable_development_body">החזון של FUTO הוא שתוכנה חופשית ושיטות עסקיות שאינן מזיקות למשתמש יהפכו למקור הכנסה בר קיימא עבור פרויקטים ומפתחיהם. מסיבה זו, אנו בעד כך שמשתמשים ישלמו בפועל על תוכנות.</string>
     <string name="commitment_to_privacy_title">מחויבות לפרטיות</string>
     <string name="commitment_to_privacy_body">אפליקציה זו לעולם לא תציג לך פרסומות או תמכור את המידע שלך. זה אינו חלק מהמודל העסקי שלנו.</string>
+
+     <!-- הגדרות והעדפות -->
+    <string name="screen_title_preferences">העדפות</string>
+    <string name="category_voice_recording">הקלדה קולית</string>
+    <string name="languages_title_main">שפת קלט</string>
+    <string name="languages_subtitle_english">אנגלית</string>
+    <string name="languages_subtitle_hebrew">עברית</string>
+    <string name="category_voice_assistant">עוזר קולי</string>
+    <string name="toggle_assistant_title">שירות עוזר קולי</string>
+    <string name="toggle_assistant_subtitle">מפעיל לחצן צף לביצוע פעולות מהירות באמצעות הנחיה קולית</string>
+    <string name="toggle_continuous_title">האזנה רציפה</string>
+    <string name="toggle_continuous_subtitle">מפעיל האזנה תמידית ברקע לצורך זיהוי הנחיות אוטומטית (צורך הרבה סוללה)</string>
+    <string name="category_general">כללי</string>
+    <string name="toggle_vad_title">עצירה אוטומטית בשקט</string>
+    <string name="toggle_vad_subtitle">עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט</string>
+    <string name="category_help">מידע</string>
+    <string name="link_help_title">עזרה והדרכה</string>
+    <string name="link_help_subtitle">מדריכים ופתרון בעיות נפוצות</string>
+    <string name="link_about_title">אודות</string>
+    <string name="link_about_subtitle">מידע על האפליקציה</string>
+    <string name="dialog_choose_language">בחר שפה</string>
+    <string name="language_hebrew_option">עברית</string>
+    <string name="language_english_option">אנגלית</string>
+
+    <!-- מדריכי עזרה -->
+    <string name="help_assistant_guide_title">מדריך שימוש בעוזר קולי</string>
+    <string name="help_assistant_guide_desc">העוזר הקולי מאפשר לך לבצע פעולות מהירות מכל מקום במכשיר באמצעות הנחיות קוליות קצרות, לדוגמה \'צילום מסך\'. יש לדבר בקול, לאט וברור, לצורך זיהוי מיטבי.</string>
+    <string name="help_assistant_guide_step_1">• הפעלה מהירה: הקש פעם אחת על לחצן המיקרופון הירוק כדי להתחיל לדבר.</string>
+    <string name="help_assistant_guide_step_2">• זיהוי מצבים: הלחצן משנה את צבעו בהתאם למצב (ירוק להמתנה, אדום להאזנה, וכתום בזמן עיבוד וכתיבה).</string>
+    <string name="help_assistant_guide_step_3">• גרירה ומיקום: ניתן לגרור את הלחצן הצף לכל מקום שנוח לך על גבי המסך.</string>
+    <string name="help_assistant_guide_step_4">• פעולות נתמכות: צילום מסך, הפעלה מחדש וכיבוי המכשיר, הפעלה וכיבוי מוזיקה.</string>
+    <string name="help_keyboard_typing_title">מדריך שימוש בהקלדה קולית</string>
+
+    <!-- שירות והתראות -->
+    <string name="assistant_service_channel_name">שירות עוזר קולי</string>
+    <string name="notification_title_active">העוזר הקולי פעיל</string>
+    <string name="notification_desc_continuous">האזנה רציפה פעילה ברקע</string>
+    <string name="notification_desc_button_available">לחצן המיקרופון הצף זמין על המסך</string>
+    <string name="status_processing">מעבד…</string>
+    <string name="status_listening">מאזין…</string>
+
+    <!-- הרשאות ובקרת עוזר קולי -->
+    <string name="cancel_button">ביטול</string>
+    <string name="permission_explanation_title">נדרשת הרשאת חלון צף</string>
+    <string name="permission_explanation_body">כדי שנוכל להציג את לחצן המיקרופון הצף מעל אפליקציות אחרות, יש לאשר את ההרשאה \'הצגה מעל אפליקציות אחרות\' בהגדרות המערכת.</string>
+    <string name="permission_explanation_button">מעבר להגדרות המערכת לאישור</string>
+    <string name="assistant_control_title">עוזר קולי אופליין</string>
+    <string name="assistant_control_body">לחץ על הכפתור למטה כדי להפעיל או לכבות את לחצן העוזר הקולי הצף.</string>
+    <string name="assistant_control_toggle_off">כבה לחצן צף</string>
+    <string name="assistant_control_toggle_on">הפעל לחצן צף</string>
+
+    <!-- פקודות קוליות -->
+    <string name="command_unrecognized">לא זוהתה פקודה תקינה</string>
+    <string name="command_executing_screenshot">מבצע: צילום מסך…</string>
+    <string name="command_executing_shutdown">מכבה את המכשיר…</string>
+    <string name="command_executing_reboot">מפעיל מחדש את המכשיר…</string>
+    <string name="command_executing_play">מפעיל מוזיקה…</string>
+    <string name="command_executing_stop">עוצר מוזיקה…</string>
+    <string name="command_not_understood">לא הבנתי</string>
 
 </resources>

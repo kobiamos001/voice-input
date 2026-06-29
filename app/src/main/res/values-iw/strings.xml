@@ -273,6 +273,6 @@
     <string name="command_executing_stop">עוצר מוזיקה…</string>
     <string name="command_not_understood">לא הבנתי</string>
 
-    <string name="app_description">העוזר הקולי מאפשר לך לבצע הקלדה קולית ופעולות במכשיר באמצאות הנחיה קולית.</string>
+    <string name="app_description">העוזר הקולי מאפשר לך לבצע הקלדה קולית ופעולות במכשיר באמצעות הנחיה קולית.</string>
 
 </resources>

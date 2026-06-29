@@ -410,7 +410,7 @@ abstract class AudioRecognizer {
 
                     while(isRecording && recorder!!.recordingState == AudioRecord.RECORDSTATE_RECORDING){
                         yield()
-                        val nRead = recorder!!.read(samples, 0, 1600, AudioRecord.READ_BLOCKING)
+                        val nRead = recorder!!.read(samples, 0, 1600, AudioRecord.RECORD_BLOCKING)
 
                         if(nRead <= 0) break
                         yield()
@@ -470,7 +470,6 @@ abstract class AudioRecognizer {
 
                         val rms = sqrt(samples.sumOf { ((it.toFloat() / Short.MAX_VALUE.toFloat()).pow(2)).toDouble() } / samples.size).toFloat()
 
-                        // שוחזר בדיוק למקור: 3 מסגרות וסינון רגיש של 0.01f
                         if(startSoundPassed && (numConsecutiveSpeech >= 3 || (rms > 0.01f && numConsecutiveSpeech >= 1))) {
                             hasTalked = true
                             this@AudioRecognizer.hasUserTalked = true 
@@ -485,7 +484,6 @@ abstract class AudioRecognizer {
                             isMicBlocked = true
                         }
 
-                        // שוחזר בדיוק למקור: 6.6 שניות (66 פריימים) לכל זיהוי
                         if(shouldUseVad && hasTalked && (numConsecutiveNonSpeech > 66)) {
                             withContext(Dispatchers.Main){ finishRecognizer() }
                             break
@@ -515,7 +513,7 @@ abstract class AudioRecognizer {
 
                         while(true){
                             yield()
-                            val nRead2 = recorder!!.read(samples, 0, 1600, AudioRecord.READ_NON_BLOCKING)
+                            val nRead2 = recorder!!.read(samples, 0, 1600, AudioRecord.RECORD_NON_BLOCKING)
                             if(nRead2 > 0) {
                                 if(floatSamples.remaining() < nRead2 && !expandSpaceIfAllowed()){
                                     yield()

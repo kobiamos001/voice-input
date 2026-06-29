@@ -76,9 +76,15 @@ class FloatingAssistantService : Service(), LifecycleOwner {
 
         val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val assistantType = prefs.getString("assistant_type", "floating") ?: "floating"
+        val isContinuous = prefs.getBoolean("continuous_listening", false)
 
         if (assistantType == "floating") {
             setupFloatingWidget()
+        }
+
+        // אם האזנה רציפה מופעלת, נתחיל להאזין באופן מיידי כבר באתחול השירות
+        if (isContinuous) {
+            recognizer?.create()
         }
     }
 
@@ -180,7 +186,8 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 36f
-                setColor(Color.parseColor("#CC222222"))
+                // הוגברה השקיפות של הרקע השחור מ-CC ל-77 (כ-45% שקיפות)
+                setColor(Color.parseColor("#77222222"))
             }
             setPadding(10, 6, 20, 6)
         }
@@ -296,7 +303,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                     setColor(Color.parseColor("#4CAF50"))
                 }
                 
-                // במידה והשירות התבטל (ללא קריאת updateLiveStatus) - מעלימים את טקסט "מעבד" מיד
                 if (text.text == "מעבד..." || text.text == "מאזין...") {
                     text.visibility = View.GONE
                 } else {
@@ -319,7 +325,6 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                 updateNotification("עוזר קולי: מאזין", "מאזין לדיבור שלך...")
             }
             AssistantRecognizer.State.PROCESSING -> {
-                // המצב הצהוב ("מעבד...") נשמר עכשיו באופן קבוע לאורך כל זמן הפענוח וביצוע הפקודה
                 text.visibility = View.VISIBLE
                 text.text = "מעבד..."
                 text.setTextColor(Color.parseColor("#FFC107"))
@@ -331,14 +336,12 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                 updateNotification("עוזר קולי: מעבד", "מפענח ומנתח את הפקודה...")
             }
             AssistantRecognizer.State.FINISHED -> {
-                // לא משנים כאן כלום כדי לתת ל-updateLiveStatus לשנות חזרה לירוק עם סיום הפעולה
+                // המצב הצהוב (PROCESSING) נשאר פעיל עד לביצוע הפעולה בפועל
             }
         }
     }
 
-    // פונקציה זו נקראת בסיום ביצוע הפעולה ומחזירה את הלחצן לירוק
     fun updateLiveStatus(message: String) {
-        // ביצוע הפעולה הושלם - מחזירים את צבע הלחצן לירוק
         floatingButton?.setImageResource(R.drawable.ic_keyboard_voice)
         floatingButton?.background = GradientDrawable().apply {
             shape = GradientDrawable.OVAL
@@ -348,7 +351,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         statusTextView?.let { text ->
             text.visibility = View.VISIBLE
             text.text = message
-            text.setTextColor(Color.parseColor("#4CAF50")) // הודעת ביצוע מוצגת בירוק
+            text.setTextColor(Color.parseColor("#4CAF50"))
         }
 
         updateNotification("העוזר הקולי פעיל", message)

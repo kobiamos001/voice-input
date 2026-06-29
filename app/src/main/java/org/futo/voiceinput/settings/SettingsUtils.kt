@@ -297,6 +297,10 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
     val prefs = remember { context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
+    var showAssistantTypeDialog by remember { mutableStateOf(false) }
+
+    // טעינת סוג העוזר הנבחר
+    var assistantType by remember { mutableStateOf(prefs.getString("assistant_type", "floating") ?: "floating") }
 
     LaunchedEffect(listOf(multilingualModelIndex, multilingual)) {
         if (multilingual) {
@@ -357,6 +361,14 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                         context.stopService(intent)
                     }
                 }
+            )
+        }
+        item {
+            SettingLink(
+                title = "סוג עוזר קולי",
+                subtitle = if (assistantType == "floating") "לחצן צף" else "התראה בשורת ההתראות",
+                iconRes = R.drawable.ic_settings_suggest,
+                onClick = { showAssistantTypeDialog = true }
             )
         }
 
@@ -497,6 +509,143 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                                 prefs.edit().putBoolean("user_chose_english", true).apply()
                                 setLanguages(setOf("en"))
                                 showLanguageDialog = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // תיבת דו-שיח מודרנית לבחירת סוג העוזר
+    if (showAssistantTypeDialog) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { showAssistantTypeDialog = false }
+        ) {
+            Card(
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "סוג עוזר קולי",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    // אופציה 1: לחצן צף
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                prefs.edit().putString("assistant_type", "floating").apply()
+                                assistantType = "floating"
+                                showAssistantTypeDialog = false
+                                if (isAssistantEnabled) {
+                                    val intent = Intent().setClassName(context.packageName, serviceClass)
+                                    context.stopService(intent)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        context.startForegroundService(intent)
+                                    } else {
+                                        context.startService(intent)
+                                    }
+                                }
+                            }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "לחצן צף",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "הצגת לחצן צף קטן ונוח על גבי המסך",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        RadioButton(
+                            selected = assistantType == "floating",
+                            onClick = {
+                                prefs.edit().putString("assistant_type", "floating").apply()
+                                assistantType = "floating"
+                                showAssistantTypeDialog = false
+                                if (isAssistantEnabled) {
+                                    val intent = Intent().setClassName(context.packageName, serviceClass)
+                                    context.stopService(intent)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        context.startForegroundService(intent)
+                                    } else {
+                                        context.startService(intent)
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    // אופציה 2: התראה בשורת ההתראות
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                prefs.edit().putString("assistant_type", "notification").apply()
+                                assistantType = "notification"
+                                showAssistantTypeDialog = false
+                                if (isAssistantEnabled) {
+                                    val intent = Intent().setClassName(context.packageName, serviceClass)
+                                    context.stopService(intent)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        context.startForegroundService(intent)
+                                    } else {
+                                        context.startService(intent)
+                                    }
+                                }
+                            }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "התראה בשורת ההתראות",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "שליטה בהקלטה וביצוע הפעולות ישירות מווילון ההתראות",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        RadioButton(
+                            selected = assistantType == "notification",
+                            onClick = {
+                                prefs.edit().putString("assistant_type", "notification").apply()
+                                assistantType = "notification"
+                                showAssistantTypeDialog = false
+                                if (isAssistantEnabled) {
+                                    val intent = Intent().setClassName(context.packageName, serviceClass)
+                                    context.stopService(intent)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        context.startForegroundService(intent)
+                                    } else {
+                                        context.startService(intent)
+                                    }
+                                }
                             }
                         )
                     }

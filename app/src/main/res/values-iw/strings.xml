@@ -1,6 +1,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">עוזר קולי</string>
-    <string name="voice_input_method">שיטת עוזר קולי</string>
+    <string name="voice_input_method">עוזר קולי</string>
     <string name="support_email" translatable="false">voiceinput@futo.org</string>
     <string name="suppress_non_speech_annotations">השתקת הערות שאינן דיבור</string>
     <string name="suppress_non_speech_annotations_subtitle">[שיעול], [מוזיקה], וכדומה</string>
@@ -18,8 +18,8 @@
     <string name="view_other_dependencies">הצגת תלויות אחרות</string>
     <string name="name_legal">המחברים, התורמים או בעלי זכויות היוצרים המפורטים לעיל אינם קשורים למוצר זה ואינם מאשרים או מקדמים אותו. ההתייחסות למחברים, לתורמים או לבעלי זכויות היוצרים היא לצורך ייחוס בלבד. אזכור שמותיהם אינו מרמז על אישור או תמיכה.</string>
     <string name="just_a_demonstration">זוהי רק הדגמה של האופן שבו קלט קולי נראה</string>
-    <string name="help_paragraph_1">כדי להשתמש בקלט קולי בתוך אפליקציות ומקלדות נתמכות יש ללחוץ על סמל המיקרפון.</string>
-    <string name="help_paragraph_2">כדי להשתמש בקלט קולי במקלדות שלא נתמכון יש להחליף את שיטת הקלט במכשיר לשיטת העוזר הקולי.</string>
+    <string name="help_paragraph_1">• כדי להשתמש בקלט קולי בתוך אפליקציות ומקלדות נתמכות יש ללחוץ על סמל המיקרפון.</string>
+    <string name="help_paragraph_2">• כדי להשתמש בקלט קולי במקלדות שלא נתמכון יש להחליף את שיטת הקלט במכשיר לעוזר הקולי.</string>
     <string name="voice_input_will_look_like_this">הקלט הקולי ייראה כך</string>
     <string name="look_for_the_big_off_center_futo_logo_in_the_background">חפש את לוגו FUTO הגדול שלא במרכז ברקע!</string>
     <string name="stop_recording">הפסקת הקלטה</string>

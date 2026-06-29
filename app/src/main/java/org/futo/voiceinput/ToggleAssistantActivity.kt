@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.futo.voiceinput.theme.UixThemeAuto
 
@@ -121,17 +122,17 @@ fun PermissionExplanationScreen(onRequestPermission: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "נדרשת הרשאת חלון צף",
+            text = stringResource(id = R.string.permission_explanation_title),
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "כדי שנוכל להציג את לחצן המיקרופון הצף מעל אפליקציות אחרות, יש לאשר את ההרשאה 'הצגה מעל אפליקציות אחרות' בהגדרות המערכת.",
+            text = stringResource(id = R.string.permission_explanation_body),
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(32.dp))
         Button(onClick = onRequestPermission) {
-            Text("מעבר להגדרות המערכת לאישור")
+            Text(stringResource(id = R.string.permission_explanation_button))
         }
     }
 }
@@ -148,12 +149,12 @@ fun AssistantControlScreen(onToggle: (Boolean) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "עוזר קולי אופליין",
+            text = stringResource(id = R.string.assistant_control_title),
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "לחץ על הכפתור למטה כדי להפעיל או לכבות את לחצן העוזר הקולי הצף.",
+            text = stringResource(id = R.string.assistant_control_body),
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(32.dp))
@@ -167,7 +168,7 @@ fun AssistantControlScreen(onToggle: (Boolean) -> Unit) {
                 containerColor = if (isServiceActive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
             )
         ) {
-            Text(text = if (isServiceActive) "כבה לחצן צף" else "הפעל לחצן צף")
+            Text(text = if (isServiceActive) stringResource(id = R.string.assistant_control_toggle_off) else stringResource(id = R.string.assistant_control_toggle_on))
         }
     }
 }

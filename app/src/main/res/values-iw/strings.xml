@@ -273,6 +273,37 @@
     <string name="command_executing_stop">עוצר מוזיקה…</string>
     <string name="command_not_understood">לא הבנתי</string>
 
+    <!-- מחרוזות עבור שליטה במסך ובשמע -->
+    <string name="command_executing_screen_on">מדליק את המסך...</string>
+    <string name="command_executing_screen_off">מכבה את המסך...</string>
+    <string name="command_executing_volume_up">מגביר ווליום...</string>
+    <string name="command_executing_volume_down">מנמיך ווליום...</string>
+
+    <!-- מחרוזות עבור שליטה בנגן המדיה -->
+    <string name="command_executing_next_track">מעביר לשיר הבא...</string>
+    <string name="command_executing_prev_track">חוזר לשיר הקודם...</string>
+
+    <!-- מחרוזות עבור קישוריות והגדרות מערכת -->
+    <string name="command_executing_bluetooth_on">מפעיל בלוטוס...</string>
+    <string name="command_executing_bluetooth_off">מכבה בלוטוס...</string>
+    <string name="command_executing_bluetooth_settings">פותח הגדרות בלוטוס...</string>
+    <string name="command_executing_apps_settings">פותח הגדרות יישומים...</string>
+
+    <!-- מחרוזות עבור אפליקציות מותקנות (חנות, גלריה ורדיו) -->
+    <string name="command_executing_open_market">פותח את חנות האפליקציות...</string>
+    <string name="command_executing_open_gallery">פותח את הגלריה...</string>
+    <string name="command_executing_radio_on">מפעיל את הרדיו...</string>
+    <string name="command_executing_radio_off">מכבה את הרדיו...</string>
+
+    <!-- מחרוזת עבור אפליקציית העברת קבצים -->
+    <string name="command_executing_open_file_transfer">פותח העברת קבצים...</string>
+
+    <!-- מחרוזות עבור מצב נא לא להפריע ותצוגה כהה -->
+    <string name="command_executing_dnd_on">מפעיל מצב נא לא להפריע...</string>
+    <string name="command_executing_dnd_off">מכבה מצב נא לא להפריע...</string>
+    <string name="command_executing_dark_mode_on">מפעיל תצוגה כהה...</string>
+    <string name="command_executing_dark_mode_off">מפעיל תצוגה בהירה...</string>
+
     <string name="app_description">העוזר הקולי מאפשר לך לבצע הקלדה קולית ופעולות במכשיר באמצעות הנחיה קולית.</string>
 
 </resources>

@@ -29,10 +29,10 @@ class AssistantRecognizer(
     override fun processing() { onStateChanged(State.PROCESSING) }
 
     override fun finished(result: String) {
-        // הוסר עדכון המצב הירוק המוקדם מכאן. הלחצן יישאר בצהוב (PROCESSING) לאורך כל הרצת הפענוח והביצוע.
+        onStateChanged(State.FINISHED)
+
         val trimmedResult = result.trim()
         if (context is FloatingAssistantService) {
-            // ביצוע הפקודה באופן מיידי. הלחצן יוחזר לירוק רק מתוך updateLiveStatus עם סיום הפעולה.
             CommandParser.parseAndExecute(context, trimmedResult) { statusMessage ->
                 (context as FloatingAssistantService).updateLiveStatus(statusMessage)
             }
@@ -41,11 +41,34 @@ class AssistantRecognizer(
         }
         
         reset()
+
+        // הפעלה מחדש מיידית של האזנה רציפה אם מופעלת והשירות רץ ברקע
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isContinuous = prefs.getBoolean("continuous_listening", false)
+        if (isContinuous && FloatingAssistantService.isRunning) {
+            onStateChanged(State.IDLE)
+            lifecycleScope.launch {
+                delay(350L) // השהיית חומרה בטוחה
+                create()
+            }
+        } else {
+            onStateChanged(State.IDLE)
+        }
     }
 
     override fun cancelled() {
         reset()
         onStateChanged(State.IDLE)
+
+        // הפעלה מחדש מיידית של האזנה רציפה אם מופעלת והשירות רץ ברקע
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isContinuous = prefs.getBoolean("continuous_listening", false)
+        if (isContinuous && FloatingAssistantService.isRunning) {
+            lifecycleScope.launch {
+                delay(350L) // השהיית חומרה בטוחה
+                create()
+            }
+        }
     }
 
     override fun languageDetected(result: String) {}

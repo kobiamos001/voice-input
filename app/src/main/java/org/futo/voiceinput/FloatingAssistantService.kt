@@ -1,35 +1,3 @@
-package org.futo.voiceinput
-
-import android.annotation.SuppressLint
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
-import android.content.Context
-import android.content.Intent
-import android.content.pm.ServiceInfo
-import android.graphics.Color
-import android.graphics.PixelFormat
-import android.graphics.drawable.GradientDrawable
-import android.os.Build
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
-import android.os.PowerManager
-import android.util.TypedValue
-import android.view.Gravity
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.app.NotificationCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.lifecycleScope
-
 class FloatingAssistantService : Service(), LifecycleOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
@@ -88,7 +56,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "שירות עוזר קולי",
+                getString(R.string.assistant_service_channel_name),
                 NotificationManager.IMPORTANCE_LOW
             )
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -109,8 +77,8 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isContinuous = prefs.getBoolean("continuous_listening", false)
 
-        val title = "העוזר הקולי פעיל"
-        val desc = if (isContinuous) "האזנה רציפה פעילה ברקע" else "לחצן המיקרופון הצף זמין על המסך"
+        val title = getString(R.string.notification_title_active)
+        val desc = if (isContinuous) getString(R.string.notification_desc_continuous) else getString(R.string.notification_desc_button_available)
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
@@ -247,7 +215,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                     setColor(Color.parseColor("#4CAF50"))
                 }
                 
-                if (text.text == "מעבד..." || text.text == "מאזין...") {
+                if (text.text == getString(R.string.status_processing) || text.text == getString(R.string.status_listening)) {
                     text.visibility = View.GONE
                 } else {
                     handler.postDelayed({
@@ -257,7 +225,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             }
             AssistantRecognizer.State.RECORDING -> {
                 text.visibility = View.VISIBLE
-                text.text = "מאזין..."
+                text.text = getString(R.string.status_listening)
                 text.setTextColor(Color.parseColor("#FF5252"))
                 button.setImageResource(R.drawable.ic_keyboard_voice)
                 button.background = GradientDrawable().apply {
@@ -267,7 +235,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             }
             AssistantRecognizer.State.PROCESSING -> {
                 text.visibility = View.VISIBLE
-                text.text = "מעבד..."
+                text.text = getString(R.string.status_processing)
                 text.setTextColor(Color.parseColor("#FFC107"))
                 button.setImageResource(R.drawable.ic_keyboard_voice)
                 button.background = GradientDrawable().apply {

@@ -62,20 +62,19 @@ fun HelpScreen(navController: NavHostController = rememberNavController()) {
         ScreenTitle(title = stringResource(id = R.string.help_title), showBack = true, navController = navController)
 
         // 1. מדריך שימוש חדש ומפורט לעוזר הקולי וללחצן הצף
-        HelpBubble(title = "מדריך לשימוש בעוזר הקולי (לחצן צף)") {
+        HelpBubble(title = stringResource(id = R.string.help_assistant_guide_title)) {
             Column {
-                textItem("העוזר הקולי מאפשר לך לבצע פעולות מהירות מכל מקום במכשיר באמצעות הנחיות קוליות קצרות, לדוגמה 'צילום מסך'. יש לדבר בקול, לאט וברור, לצורך זיהוי מיטבי.")
+                textItem(stringResource(id = R.string.help_assistant_guide_desc))
                 Spacer(modifier = Modifier.height(8.dp))
-                textItem("• הפעלה מהירה: הקש פעם אחת על לחצן המיקרופון הירוק כדי להתחיל לדבר.")
-                textItem("• זיהוי מצבים: הלחצן משנה את צבעו בהתאם למצב (ירוק להמתנה, אדום להאזנה, וכתום בזמן עיבוד וכתיבה).")
-                textItem("• גרירה ומיקום: ניתן לגרור את הלחצן הצף לכל מקום שנוח לך על גבי המסך.")
-                Spacer(modifier = Modifier.height(8.dp))
-                textItem("• פעולות נתמכות: צילום מסך, הפעלה מחדש וכיבוי המכשיר, הפעלה וכיבוי מוזיקה.")
+                textItem(stringResource(id = R.string.help_assistant_guide_step_1))
+                textItem(stringResource(id = R.string.help_assistant_guide_step_2))
+                textItem(stringResource(id = R.string.help_assistant_guide_step_3))
+                textItem(stringResource(id = R.string.help_assistant_guide_step_4))
             }
         }
 
         // 2. הסבר כללי על המקלדת והקלדה קולית
-        HelpBubble(title = "הקלדה קולית במקלדת") {
+        HelpBubble(title = stringResource(id = R.string.help_keyboard_typing_title)) {
             Column {
                 textItem(stringResource(R.string.help_paragraph_1))
                 textItem(stringResource(R.string.help_paragraph_2))

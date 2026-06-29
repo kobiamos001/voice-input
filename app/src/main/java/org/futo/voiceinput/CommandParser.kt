@@ -97,10 +97,10 @@ object CommandParser {
         val screenshotKeywords = listOf("צילום", "תצלם", "צלם", "מסך")
 
         // 2. קבוצת מילים: כיבוי המכשיר
-        val shutdownKeywords = listOf("כיבוי", "תכבה", "לכבות", "כבה", "טלפון", "מכשיר")
+        val shutdownKeywords = listOf("כיבוי", "תכבה", "לכבות", "כבה", "טלפון", "נגן", "מכשיר")
 
         // 3. קבוצת מילים: הפעלה מחדש (Reboot)
-        val rebootKeywords = listOf("מחדש", "ריבוט", "הפעלה", "הפעל", "תפעיל", "מכשיר", "טלפון", "reboot")
+        val rebootKeywords = listOf("מחדש", "הפעלה", "הפעל", "תפעיל", "נגן", "מכשיר", "טלפון")
 
         // 4. קבוצת מילים: הפעלת מוזיקה
         val playKeywords = listOf("נגן", "תפעיל", "הפעל", "מוזיקה", "שיר", "להשמיע", "תשמיע")
@@ -125,35 +125,35 @@ object CommandParser {
 
         // תנאי סף: דורש לפחות 2 מילות מפתח תואמות (או דומות מאוד)
         if (maxScore < 2) {
-            onStatusUpdate("לא זוהתה פקודה תקינה")
+            onStatusUpdate(context.getString(R.string.command_unrecognized))
             Log.d(TAG, "Command ignored. Max score ($maxScore) is below the threshold of 2.")
             return
         }
 
         when {
             maxScore == screenshotScore && screenshotScore >= 2 -> {
-                onStatusUpdate("מבצע: צילום מסך...")
+                onStatusUpdate(context.getString(R.string.command_executing_screenshot))
                 val timeStamp = System.currentTimeMillis()
                 runAsRoot("mkdir -p /sdcard/Pictures && screencap -p /sdcard/Pictures/Screenshot_$timeStamp.png")
             }
             maxScore == shutdownScore && shutdownScore >= 2 -> {
-                onStatusUpdate("מכבה את המכשיר...")
+                onStatusUpdate(context.getString(R.string.command_executing_shutdown))
                 runAsRoot("svc power shutdown || reboot -p")
             }
             maxScore == rebootScore && rebootScore >= 2 -> {
-                onStatusUpdate("מפעיל מחדש את המכשיר...")
+                onStatusUpdate(context.getString(R.string.command_executing_reboot))
                 runAsRoot("reboot")
             }
             maxScore == playScore && playScore >= 2 -> {
-                onStatusUpdate("מפעיל מוזיקה...")
+                onStatusUpdate(context.getString(R.string.command_executing_play))
                 runAsRoot("input keyevent 126")
             }
             maxScore == stopScore && stopScore >= 2 -> {
-                onStatusUpdate("עוצר מוזיקה...")
+                onStatusUpdate(context.getString(R.string.command_executing_stop))
                 runAsRoot("input keyevent 127")
             }
             else -> {
-                onStatusUpdate("לא הבנתי")
+                onStatusUpdate(context.getString(R.string.command_not_understood))
             }
         }
     }

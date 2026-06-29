@@ -18,8 +18,8 @@
     <string name="view_other_dependencies">הצגת תלויות אחרות</string>
     <string name="name_legal">המחברים, התורמים או בעלי זכויות היוצרים המפורטים לעיל אינם קשורים למוצר זה ואינם מאשרים או מקדמים אותו. ההתייחסות למחברים, לתורמים או לבעלי זכויות היוצרים היא לצורך ייחוס בלבד. אזכור שמותיהם אינו מרמז על אישור או תמיכה.</string>
     <string name="just_a_demonstration">זוהי רק הדגמה של האופן שבו קלט קולי נראה</string>
-    <string name="help_paragraph_1">• כדי להשתמש בקלט קולי בתוך אפליקציות ומקלדות נתמכות יש ללחוץ על סמל המיקרפון.</string>
-    <string name="help_paragraph_2">• כדי להשתמש בקלט קולי במקלדות שלא נתמכון יש להחליף את שיטת הקלט במכשיר לעוזר הקולי.</string>
+    <string name="help_paragraph_1">• כדי להשתמש בהקלדה קולית בתוך אפליקציות ומקלדות נתמכות יש ללחוץ על סמל המיקרפון.</string>
+    <string name="help_paragraph_2">• כדי להשתמש בהקלדה קולית במקלדות שלא נתמכות יש להחליף את שיטת הקלט במכשיר לעוזר הקולי.</string>
     <string name="voice_input_will_look_like_this">הקלט הקולי ייראה כך</string>
     <string name="look_for_the_big_off_center_futo_logo_in_the_background">חפש את לוגו FUTO הגדול שלא במרכז ברקע!</string>
     <string name="stop_recording">הפסקת הקלטה</string>
@@ -229,7 +229,7 @@
     <string name="toggle_vad_title">עצירה אוטומטית בשקט</string>
     <string name="toggle_vad_subtitle">עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט</string>
     <string name="category_help">מידע</string>
-    <string name="link_help_title">עזרה והדרכה</string>
+    <string name="link_help_title">עזרה</string>
     <string name="link_help_subtitle">מדריכים ופתרון בעיות נפוצות</string>
     <string name="link_about_title">אודות</string>
     <string name="link_about_subtitle">מידע על האפליקציה</string>

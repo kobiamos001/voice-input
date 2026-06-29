@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -81,7 +82,7 @@ fun RecognizeWindow(forceNoUnpaidNotice: Boolean = false, allowClick: Boolean = 
                             ) {
                                 Icon(
                                     Icons.Default.Close,
-                                    contentDescription = "Cancel",
+                                    contentDescription = stringResource(id = R.string.cancel_button),
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }

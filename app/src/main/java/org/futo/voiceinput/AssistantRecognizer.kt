@@ -29,23 +29,44 @@ class AssistantRecognizer(
     override fun processing() { onStateChanged(State.PROCESSING) }
 
     override fun finished(result: String) {
+        onStateChanged(State.FINISHED)
+
         val trimmedResult = result.trim()
         if (context is FloatingAssistantService) {
-            // ביצוע הפקודה באופן מיידי. הלחצן יחזור לירוק רק מתוך updateLiveStatus של ה-Service בסיום הפעולה.
             CommandParser.parseAndExecute(context, trimmedResult) { statusMessage ->
                 (context as FloatingAssistantService).updateLiveStatus(statusMessage)
             }
         } else {
             CommandParser.parseAndExecute(context, result) {}
-            onStateChanged(State.IDLE)
         }
         
         reset()
+
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isContinuous = prefs.getBoolean("continuous_listening", false)
+        if (isContinuous && FloatingAssistantService.isRunning) {
+            onStateChanged(State.IDLE)
+            lifecycleScope.launch {
+                delay(350L) 
+                create()
+            }
+        } else {
+            onStateChanged(State.IDLE)
+        }
     }
 
     override fun cancelled() {
         reset()
         onStateChanged(State.IDLE)
+
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isContinuous = prefs.getBoolean("continuous_listening", false)
+        if (isContinuous && FloatingAssistantService.isRunning) {
+            lifecycleScope.launch {
+                delay(350L) 
+                create()
+            }
+        }
     }
 
     override fun languageDetected(result: String) {}

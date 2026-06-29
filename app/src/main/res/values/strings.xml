@@ -73,7 +73,7 @@
     <string name="processing">Processing…</string>
     <string name="initializing">Initializing…</string>
     <string name="cancel">Cancel</string>
-    <string name="futo_logo">FUTO Logo</string>
+    <string name="futo_logo">Voice Assistant Logo</string>
     <string name="enable_ime_body">To integrate with existing keyboards, you need to enable the Voice Input Method.</string>
     <string name="open_input_method_settings">Open Input Method Settings</string>
     <string name="step_1_of_2">Step 1 of 2</string>
@@ -81,9 +81,9 @@
     <string name="grant_microphone_body">In order to use Voice Input, you need to grant microphone permission.</string>
     <string name="grant_microphone_permission">Grant Microphone</string>
     <string name="incompatible_keyboard">Incompatible keyboard</string>
-    <string name="gboard_incompatible_details">You appear to be using Gboard. This keyboard is incompatible with FUTO Voice Input.\n\nGboard relies on its own voice typing system and does not appear to integrate with standard Android APIs for voice input at this time. You will need to use a different keyboard if you want to use FUTO Voice Input with your keyboard.\n\nPlease visit the Help page in settings for more information.</string>
+    <string name="gboard_incompatible_details">You appear to be using Gboard. This keyboard is incompatible with Voice Assistant Voice Input.\n\nGboard relies on its own voice typing system and does not appear to integrate with standard Android APIs for voice input at this time. You will need to use a different keyboard if you want to use Voice Assistant Voice Input with your keyboard.\n\nPlease visit the Help page in settings for more information.</string>
     <string name="gboard_incompatible_accept">I understand Gboard is incompatible</string>
-    <string name="typewise_incompatible_details">You appear to be using Typewise. This keyboard does not have a voice input button at this time, so you will need to use a different keyboard if you want to use FUTO Voice Input with your keyboard.</string>
+    <string name="typewise_incompatible_details">You appear to be using Typewise. This keyboard does not have a voice input button at this time, so you will need to use a different keyboard if you want to use Voice Assistant Voice Input with your keyboard.</string>
     <string name="typewise_incompatible_accept">I understand Typewise is incompatible</string>
     <string name="intent_result_is_null_or_empty">Intent result is null or empty</string>
     <string name="intent_was_cancelled">Intent was cancelled</string>
@@ -150,7 +150,7 @@
     <string name="wrong_default_body">It looks like the default voice input app is set to a different app (<xliff:g name="package" example="com.example.example">%s</xliff:g>). You may wish to change this.</string>
     <string name="clear_app_s_defaults">Clear app\'s defaults</string>
     <string name="dismiss">Dismiss</string>
-    <string name="samsung_keyboard_incompatible_details">You appear to be using Samsung Keyboard.\n\nUnfortunately, Samsung Keyboard is currently hardcoded to only allow the choice between Samsung Voice Input and Google Voice Input. You will need to use a different keyboard if you want to trigger FUTO Voice Input from your keyboard.\n\nPlease visit the Help page in settings for more information.</string>
+    <string name="samsung_keyboard_incompatible_details">You appear to be using Samsung Keyboard.\n\nUnfortunately, Samsung Keyboard is currently hardcoded to only allow the choice between Samsung Voice Input and Google Voice Input. You will need to use a different keyboard if you want to trigger Voice Assistant Voice Input from your keyboard.\n\nPlease visit the Help page in settings for more information.</string>
     <string name="samsung_keyboard_incompatible_accept">I understand Samsung Keyboard is incompatible</string>
     <string name="payment_complete">Payment Complete</string>
     <string name="model_downloader">Model Downloader</string>

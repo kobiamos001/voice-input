@@ -481,11 +481,6 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            Text(
-                                text = "עברית (ברירת מחדל)",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                         RadioButton(
                             selected = languages.contains("he"),
@@ -515,11 +510,6 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                                 text = "אנגלית (English)",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = "Trained on english language models",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         RadioButton(
@@ -646,7 +636,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                                 )
                             }
 
-                            // שורת איมייל
+                            // שורת אימייל
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -816,7 +806,7 @@ fun SetupOrMain(settingsViewModel: SettingsViewModel = viewModel(), billing: Bil
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterVertically)
-            ) {
+                ) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     color = MaterialTheme.colorScheme.primary

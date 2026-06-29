@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -709,7 +710,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
 
                     // שם האפליקציה
                     Text(
-                        text = "HTransfer",
+                        text = "Voice Assistant",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -718,7 +719,7 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
 
                     // גרסה
                     Text(
-                        text = "V2.1",
+                        text = "V1.0",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -729,14 +730,18 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                     Text(
                         text = "Build By HPower",
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontStyle = FontStyle.Italic
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = FontFamily.Cursive
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
                         text = "©",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = FontFamily.Cursive
+                        ),
                         fontSize = 22.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

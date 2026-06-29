@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -73,8 +74,34 @@ class FloatingAssistantService : Service(), LifecycleOwner {
             updateUIByState(state)
         }
 
-        // תמיד פותחים ומפעילים את הלחצן הצף וממתינים ללחיצה ידנית בלבד
-        setupFloatingWidget()
+        val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val assistantType = prefs.getString("assistant_type", "floating") ?: "floating"
+
+        if (assistantType == "floating") {
+            setupFloatingWidget()
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent != null) {
+            when (intent.action) {
+                "START_RECORDING" -> {
+                    recognizer?.let {
+                        if (!it.isCurrentlyRecording()) {
+                            it.create()
+                        }
+                    }
+                }
+                "STOP_RECORDING" -> {
+                    recognizer?.let {
+                        if (it.isCurrentlyRecording()) {
+                            it.finishRecognizerIfRecording()
+                        }
+                    }
+                }
+            }
+        }
+        return START_STICKY
     }
 
     private fun startServiceForeground() {
@@ -91,11 +118,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         val title = "העוזר הקולי פעיל"
         val desc = "לחצן המיקרופון הצף זמין על המסך"
 
-        val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(title)
-            .setContentText(desc)
-            .setSmallIcon(R.drawable.ic_keyboard_voice)
-            .build()
+        val notification = buildNotification(title, desc)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // API 30+
             startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
@@ -106,18 +129,45 @@ class FloatingAssistantService : Service(), LifecycleOwner {
 
     private fun updateNotification(title: String, desc: String) {
         try {
-            val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(title)
-                .setContentText(desc)
-                .setSmallIcon(R.drawable.ic_keyboard_voice)
-                .setOnlyAlertOnce(true) 
-                .build()
-
+            val notification = buildNotification(title, desc)
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.notify(NOTIFICATION_ID, notification)
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun buildNotification(title: String, desc: String): Notification {
+        val prefs = getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val assistantType = prefs.getString("assistant_type", "floating") ?: "floating"
+
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(desc)
+            .setSmallIcon(R.drawable.ic_keyboard_voice)
+            .setOnlyAlertOnce(true)
+
+        if (assistantType == "notification") {
+            val startIntent = Intent(this, FloatingAssistantService::class.java).apply {
+                action = "START_RECORDING"
+            }
+            val startPendingIntent = PendingIntent.getService(
+                this, 1, startIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            )
+            builder.addAction(R.drawable.ic_keyboard_voice, "הפעל האזנה", startPendingIntent)
+
+            val stopIntent = Intent(this, FloatingAssistantService::class.java).apply {
+                action = "STOP_RECORDING"
+            }
+            val stopPendingIntent = PendingIntent.getService(
+                this, 2, stopIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            )
+            builder.addAction(R.drawable.ic_keyboard_voice, "עצור האזנה", stopPendingIntent)
+        }
+
+        return builder.build()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -245,11 +295,17 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                     shape = GradientDrawable.OVAL
                     setColor(Color.parseColor("#4CAF50"))
                 }
-                handler.postDelayed({
+                
+                // במידה והשירות התבטל (ללא קריאת updateLiveStatus) - מעלימים את טקסט "מעבד" מיד
+                if (text.text == "מעבד..." || text.text == "מאזין...") {
                     text.visibility = View.GONE
-                }, 3000)
+                } else {
+                    handler.postDelayed({
+                        text.visibility = View.GONE
+                    }, 3000)
+                }
 
-                updateNotification("העוזר הקולי פעיל", "לחצן המיקרופון הצף זמין על המסך")
+                updateNotification("העוזר הקולי פעיל", "שירות העוזר הקולי פעיל וממתין לפקודה")
             }
             AssistantRecognizer.State.RECORDING -> {
                 text.visibility = View.VISIBLE
@@ -263,10 +319,11 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                 updateNotification("עוזר קולי: מאזין", "מאזין לדיבור שלך...")
             }
             AssistantRecognizer.State.PROCESSING -> {
+                // המצב הצהוב ("מעבד...") נשמר עכשיו באופן קבוע לאורך כל זמן הפענוח וביצוע הפקודה
                 text.visibility = View.VISIBLE
                 text.text = "מעבד..."
                 text.setTextColor(Color.parseColor("#FFC107"))
-                button.setImageResource(R.drawable.ic_settings_suggest)
+                button.setImageResource(R.drawable.ic_keyboard_voice)
                 button.background = GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
                     setColor(Color.parseColor("#FFC107"))
@@ -274,33 +331,31 @@ class FloatingAssistantService : Service(), LifecycleOwner {
                 updateNotification("עוזר קולי: מעבד", "מפענח ומנתח את הפקודה...")
             }
             AssistantRecognizer.State.FINISHED -> {
-                button.setImageResource(R.drawable.ic_keyboard_voice)
-                button.background = GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(Color.parseColor("#4CAF50"))
-                }
+                // לא משנים כאן כלום כדי לתת ל-updateLiveStatus לשנות חזרה לירוק עם סיום הפעולה
             }
         }
     }
 
+    // פונקציה זו נקראת בסיום ביצוע הפעולה ומחזירה את הלחצן לירוק
     fun updateLiveStatus(message: String) {
-        floatingButton?.setImageResource(R.drawable.ic_settings_suggest)
+        // ביצוע הפעולה הושלם - מחזירים את צבע הלחצן לירוק
+        floatingButton?.setImageResource(R.drawable.ic_keyboard_voice)
+        floatingButton?.background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(Color.parseColor("#4CAF50"))
+        }
         
         statusTextView?.let { text ->
             text.visibility = View.VISIBLE
             text.text = message
-            text.setTextColor(Color.parseColor("#4CAF50"))
+            text.setTextColor(Color.parseColor("#4CAF50")) // הודעת ביצוע מוצגת בירוק
         }
 
-        updateNotification("עוזר קולי: מבצע פקודה", message)
+        updateNotification("העוזר הקולי פעיל", message)
 
-        if (message == "לא זוהתה פקודה תקינה" || message == "לא הבנתי") {
-            handler.postDelayed({
-                updateNotification("העוזר הקולי פעיל", "לחצן המיקרופון הצף זמין על המסך")
-                statusTextView?.visibility = View.GONE
-                floatingButton?.setImageResource(R.drawable.ic_keyboard_voice)
-            }, 3000)
-        }
+        handler.postDelayed({
+            statusTextView?.visibility = View.GONE
+        }, 3000)
     }
 
     override fun onDestroy() {
@@ -308,7 +363,7 @@ class FloatingAssistantService : Service(), LifecycleOwner {
         
         handler.removeCallbacksAndMessages(null)
         recognizer?.reset()
-        if (containerView != null) {
+        if (containerView != null && containerView!!.parent != null) {
             windowManager.removeView(containerView)
         }
 

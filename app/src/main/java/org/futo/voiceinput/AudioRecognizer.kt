@@ -138,10 +138,16 @@ abstract class AudioRecognizer {
 
         unfocusAudio()
 
-        lifecycleScope.launch {
-            modelJob?.join()
-            model?.close()
-            model = null
+        // השארת המודל טעון בזיכרון דרך קבע עבור האזנה רציפה - נמנע סגירה של המודל
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isContinuous = prefs.getBoolean("continuous_listening", false)
+
+        if (!isContinuous) {
+            lifecycleScope.launch {
+                modelJob?.join()
+                model?.close()
+                model = null
+            }
         }
     }
 
@@ -200,7 +206,6 @@ abstract class AudioRecognizer {
             languages = setOf("he")
         }
 
-        // שימוש בשפה המאולצת (עברית קבועה) עבור העוזר הקולי, או שפות המקלדת עבור המקלדת
         val languagesToUse = if (forcedLanguage != null) setOf(forcedLanguage!!) else languages
 
         try {
@@ -209,7 +214,7 @@ abstract class AudioRecognizer {
                 primaryModel,
                 secondaryModel,
                 context.getSetting(DISALLOW_SYMBOLS),
-                languagesToUse, // שימוש ברשימת השפות הדינמית/המאולצת
+                languagesToUse, 
                 onStatusUpdate = {
                     decodingStatus(it)
                 },
@@ -234,7 +239,6 @@ abstract class AudioRecognizer {
 
     private suspend fun loadModelInner() {
         try {
-            // כפיית מודל 74 רב-לשוני (אינדקס 1) ואנגלית (אינדקס 0) כברירת מחדל
             val englishModelIdx = 0
             val multilingualModelIdx = 1
             
@@ -246,7 +250,6 @@ abstract class AudioRecognizer {
                 languages = setOf("he")
             }
 
-            // המודל הרב-לשוני (עברית) פעיל תמיד, אלא אם המשתמש בחר ידנית באנגלית בלבד
             val isMultilingual = !userChoseEnglish
 
             if (forcedLanguage != null) {
@@ -536,7 +539,6 @@ abstract class AudioRecognizer {
         }
     }
 
-    private var modelTask: Job? = null
     private suspend fun runModel(){
         if(loadModelJob != null && loadModelJob!!.isActive) {
             println("Model was not finished loading...")
@@ -572,7 +574,11 @@ abstract class AudioRecognizer {
             return runModel()
         }
 
-        if (this !is AssistantRecognizer) {
+        // השארת המודל טעון בזיכרון דרך קבע עבור האזנה רציפה
+        val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
+        val isContinuous = prefs.getBoolean("continuous_listening", false)
+
+        if (this !is AssistantRecognizer || !isContinuous) {
             model!!.close()
             model = null
         }

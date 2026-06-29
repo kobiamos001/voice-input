@@ -1,6 +1,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">FUTO Voice Input</string>
-    <string name="voice_input_method">FUTO Voice Input Method</string>
+    <string name="app_name">Voice Assistant</string>
+    <string name="voice_input_method">Voice Assistant</string>
     <string name="support_email" translatable="false">voiceinput@futo.org</string>
     <string name="suppress_non_speech_annotations">Suppress non-speech annotations</string>
     <string name="suppress_non_speech_annotations_subtitle">[cough], [music], etc</string>
@@ -213,5 +213,64 @@
     <string name="sustainable_development_body">FUTO\'s mission is for open-source software and non-malicious software business practices to become a sustainable income source for projects and their developers. For this reason, we are in favor of users actually paying for software.</string>
     <string name="commitment_to_privacy_title">Commitment to Privacy</string>
     <string name="commitment_to_privacy_body">This app will never serve you ads or sell your data. We are not in the business of doing that.</string>
+
+    <!-- Settings and Preferences -->
+    <string name="screen_title_preferences">Preferences</string>
+    <string name="category_voice_recording">Voice Typing</string>
+    <string name="languages_title_main">Input Language</string>
+    <string name="languages_subtitle_english">English</string>
+    <string name="languages_subtitle_hebrew">Hebrew</string>
+    <string name="category_voice_assistant">Voice Assistant</string>
+    <string name="toggle_assistant_title">Voice Assistant Service</string>
+    <string name="toggle_assistant_subtitle">Enables a floating button to perform quick actions using voice prompts</string>
+    <string name="toggle_continuous_title">Continuous Listening</string>
+    <string name="toggle_continuous_subtitle">Enables continuous background listening for automatic prompt recognition (high battery consumption)</string>
+    <string name="category_general">General</string>
+    <string name="toggle_vad_title">Auto-stop on silence</string>
+    <string name="toggle_vad_subtitle">Automatically stops recording when silence is detected</string>
+    <string name="category_help">Information</string>
+    <string name="link_help_title">Help and Guidance</string>
+    <string name="link_help_subtitle">Guides and troubleshooting common issues</string>
+    <string name="link_about_title">About</string>
+    <string name="link_about_subtitle">App information</string>
+    <string name="dialog_choose_language">Choose Language</string>
+    <string name="language_hebrew_option">Hebrew</string>
+    <string name="language_english_option">English</string>
+
+    <!-- Help Guides -->
+    <string name="help_assistant_guide_title">Voice Assistant User Guide</string>
+    <string name="help_assistant_guide_desc">The Voice Assistant allows you to perform quick actions from anywhere on your device using short voice commands, for example \'screenshot\'. Please speak aloud, slowly and clearly, for optimal recognition.</string>
+    <string name="help_assistant_guide_step_1">• Quick start: Tap the green microphone button once to start speaking.</string>
+    <string name="help_assistant_guide_step_2">• Status recognition: The button changes color depending on its state (green for standby, red for listening, and orange during processing and writing).</string>
+    <string name="help_assistant_guide_step_3">• Drag and position: You can drag the floating button to any comfortable position on the screen.</string>
+    <string name="help_assistant_guide_step_4">• Supported actions: Screenshot, restart and turn off the device, play and stop music.</string>
+    <string name="help_keyboard_typing_title">Voice Typing User Guide</string>
+
+    <!-- Service and Notifications -->
+    <string name="assistant_service_channel_name">Voice Assistant Service</string>
+    <string name="notification_title_active">Voice Assistant is active</string>
+    <string name="notification_desc_continuous">Continuous listening active in the background</string>
+    <string name="notification_desc_button_available">Floating microphone button is available on the screen</string>
+    <string name="status_processing">Processing…</string>
+    <string name="status_listening">Listening…</string>
+
+    <!-- Permissions and Control -->
+    <string name="cancel_button">Cancel</string>
+    <string name="permission_explanation_title">Floating Window Permission Required</string>
+    <string name="permission_explanation_body">To display the floating microphone button over other apps, please grant the \'Display over other apps\' permission in the system settings.</string>
+    <string name="permission_explanation_button">Go to system settings to authorize</string>
+    <string name="assistant_control_title">Offline Voice Assistant</string>
+    <string name="assistant_control_body">Press the button below to turn the floating voice assistant button on or off.</string>
+    <string name="assistant_control_toggle_off">Turn off floating button</string>
+    <string name="assistant_control_toggle_on">Turn on floating button</string>
+
+    <!-- Voice Commands -->
+    <string name="command_unrecognized">No valid command recognized</string>
+    <string name="command_executing_screenshot">Executing: Screenshot…</string>
+    <string name="command_executing_shutdown">Powering off device…</string>
+    <string name="command_executing_reboot">Restarting device…</string>
+    <string name="command_executing_play">Playing music…</string>
+    <string name="command_executing_stop">Stopping music…</string>
+    <string name="command_not_understood">I didn\'t understand</string>
 
 </resources>

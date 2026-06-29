@@ -413,7 +413,7 @@ abstract class AudioRecognizer {
 
                     while(isRecording && recorder!!.recordingState == AudioRecord.RECORDSTATE_RECORDING){
                         yield()
-                        val nRead = recorder!!.read(samples, 0, 1600, AudioRecord.RECORD_BLOCKING)
+                        val nRead = recorder!!.read(samples, 0, 1600, AudioRecord.READ_BLOCKING)
 
                         if(nRead <= 0) break
                         yield()
@@ -516,7 +516,7 @@ abstract class AudioRecognizer {
 
                         while(true){
                             yield()
-                            val nRead2 = recorder!!.read(samples, 0, 1600, AudioRecord.RECORD_NON_BLOCKING)
+                            val nRead2 = recorder!!.read(samples, 0, 1600, AudioRecord.READ_NON_BLOCKING)
                             if(nRead2 > 0) {
                                 if(floatSamples.remaining() < nRead2 && !expandSpaceIfAllowed()){
                                     yield()
@@ -539,6 +539,7 @@ abstract class AudioRecognizer {
         }
     }
 
+    private var modelTask: Job? = null
     private suspend fun runModel(){
         if(loadModelJob != null && loadModelJob!!.isActive) {
             println("Model was not finished loading...")
@@ -574,7 +575,6 @@ abstract class AudioRecognizer {
             return runModel()
         }
 
-        // השארת המודל טעון בזיכרון דרך קבע עבור האזנה רציפה
         val prefs = context.getSharedPreferences("assistant_prefs", Context.MODE_PRIVATE)
         val isContinuous = prefs.getBoolean("continuous_listening", false)
 

@@ -106,13 +106,8 @@ fun LanguagesScreen(
         items(filteredLanguages.size) {
             val language = filteredLanguages[it]
 
-            val subtitle = if (language.id == "he") {
-                "עברית (ברירת מחדל)"
-            } else {
-                stringResource(R.string.trained_on_x_hours, language.trainedHourCount)
-            }
-
-            LanguageToggle(language.id, language.name, languages, setLanguages, subtitle)
+            // הועבר ערך null עבור ה-subtitle כדי למנוע הצגת תיאור תחת כותרת השפה
+            LanguageToggle(language.id, language.name, languages, setLanguages, null)
         }
     }
 }

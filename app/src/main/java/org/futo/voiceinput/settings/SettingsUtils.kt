@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -579,11 +581,13 @@ fun SimplifiedHomeScreen(navController: NavHostController) {
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // לוגו האפליקציה (72dp)
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_keyboard_voice),
-                        contentDescription = "App Logo",
-                        tint = MaterialTheme.colorScheme.primary,
+                    // לוגו האפליקציה האמיתי (72dp)
+                    AndroidView(
+                        factory = { ctx ->
+                            ImageView(ctx).apply {
+                                setImageDrawable(ctx.packageManager.getApplicationIcon(ctx.packageName))
+                            }
+                        },
                         modifier = Modifier.size(72.dp)
                     )
 

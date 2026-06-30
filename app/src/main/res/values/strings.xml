@@ -224,7 +224,7 @@
     <string name="toggle_assistant_title">Voice Assistant Service</string>
     <string name="toggle_assistant_subtitle">Enables a floating button to perform quick actions using voice prompts</string>
     <string name="toggle_continuous_title">Continuous Listening</string>
-    <string name="toggle_continuous_subtitle">Enables continuous background listening for automatic prompt recognition (high battery consumption)</string>
+    <string name="toggle_continuous_subtitle">Enables continuous listening in the background for automatic command recognition (high battery usage)</string>
     <string name="category_general">General</string>
     <string name="toggle_vad_title">Auto-stop on silence</string>
     <string name="toggle_vad_subtitle">Automatically stops recording when silence is detected</string>

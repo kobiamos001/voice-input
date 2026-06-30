@@ -230,7 +230,7 @@
     <string name="toggle_vad_subtitle">Automatically stops recording when silence is detected</string>
     <string name="category_help">Information</string>
     <string name="link_help_title">Help</string>
-    <string name="link_help_subtitle">Guides and troubleshooting common issues</string>
+    <string name="link_help_subtitle">Guides and troubleshooting issues</string>
     <string name="link_about_title">About</string>
     <string name="link_about_subtitle">App information</string>
     <string name="dialog_choose_language">Choose Language</string>
@@ -304,6 +304,6 @@
     <string name="command_executing_dark_mode_on">Enabling Dark Theme…</string>
     <string name="command_executing_dark_mode_off">Enabling Light Theme…</string>
 
-    <string name="app_description">The voice assistant allows you to perform voice typing and device actions using voice commands.</string>
+    <string name="app_description">The voice assistant allows you to perform voice typing and quick actions on your device using voice commands.</string>
 
 </resources>

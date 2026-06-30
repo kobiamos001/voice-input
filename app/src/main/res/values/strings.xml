@@ -264,45 +264,41 @@
     <string name="assistant_control_toggle_off">Turn off floating button</string>
     <string name="assistant_control_toggle_on">Turn on floating button</string>
 
-    <!-- Voice Commands -->
+    <!-- Voice commands -->
     <string name="command_unrecognized">No valid command recognized</string>
-    <string name="command_executing_screenshot">Executing: Screenshot…</string>
-    <string name="command_executing_shutdown">Powering off device…</string>
+    <string name="command_executing_screenshot">Taking screenshot…</string>
+    <string name="command_executing_shutdown">Shutting down device…</string>
     <string name="command_executing_reboot">Restarting device…</string>
     <string name="command_executing_play">Playing music…</string>
     <string name="command_executing_stop">Stopping music…</string>
     <string name="command_not_understood">I didn\'t understand</string>
 
-    <!-- Screen and Audio control strings -->
-    <string name="command_executing_screen_on">Turning screen on…</string>
-    <string name="command_executing_screen_off">Turning screen off…</string>
+    <!-- Strings for screen and audio control -->
+    <string name="command_executing_screen_on">Turning on screen…</string>
+    <string name="command_executing_screen_off">Turning off screen…</string>
     <string name="command_executing_volume_up">Increasing volume…</string>
     <string name="command_executing_volume_down">Decreasing volume…</string>
 
-    <!-- Media player control strings -->
+    <!-- Strings for media player control -->
     <string name="command_executing_next_track">Skipping to next track…</string>
-    <string name="command_executing_prev_track">Going back to previous track…</string>
+    <string name="command_executing_prev_track">Returning to previous track…</string>
 
-    <!-- Connectivity and System settings strings -->
-    <string name="command_executing_bluetooth_on">Enabling Bluetooth…</string>
-    <string name="command_executing_bluetooth_off">Disabling Bluetooth…</string>
+    <!-- Strings for connectivity and system settings -->
+    <string name="command_executing_bluetooth_on">Turning on Bluetooth…</string>
+    <string name="command_executing_bluetooth_off">Turning off Bluetooth…</string>
     <string name="command_executing_bluetooth_settings">Opening Bluetooth settings…</string>
-    <string name="command_executing_apps_settings">Opening application settings…</string>
+    <string name="command_executing_apps_settings">Opening apps settings…</string>
+    <string name="command_executing_settings">Opening settings…</string>
 
-    <!-- Installed apps strings (Store, Gallery and Radio) -->
-    <string name="command_executing_open_market">Opening App Store…</string>
-    <string name="command_executing_open_gallery">Opening Gallery…</string>
-    <string name="command_executing_radio_on">Turning on Radio…</string>
-    <string name="command_executing_radio_off">Turning off Radio…</string>
+    <!-- Strings for installed apps (store, gallery, and radio) -->
+    <string name="command_executing_open_market">Opening app store…</string>
+    <string name="command_executing_open_gallery">Opening gallery…</string>
+    <string name="command_executing_radio_on">Opening radio…</string>
 
-    <!-- File Transfer app string -->
-    <string name="command_executing_open_file_transfer">Opening File Transfer…</string>
-
-    <!-- Do Not Disturb and Dark Mode strings -->
-    <string name="command_executing_dnd_on">Enabling Do Not Disturb…</string>
-    <string name="command_executing_dnd_off">Disabling Do Not Disturb…</string>
-    <string name="command_executing_dark_mode_on">Enabling Dark Theme…</string>
-    <string name="command_executing_dark_mode_off">Enabling Light Theme…</string>
+    <!-- String for file transfer app -->
+    <string name="command_executing_open_file_transfer">Opening file transfer…</string>
+    <string name="command_executing_dark_mode_on">Enabling dark mode…</string>
+    <string name="command_executing_dark_mode_off">Enabling light mode…</string>
 
     <string name="app_description">The voice assistant allows you to perform voice typing and quick actions on your device using voice commands.</string>
 

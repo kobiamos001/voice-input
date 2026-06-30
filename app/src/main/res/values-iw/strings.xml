@@ -224,13 +224,13 @@
     <string name="toggle_assistant_title">שירות עוזר קולי</string>
     <string name="toggle_assistant_subtitle">מפעיל לחצן צף לביצוע פעולות מהירות באמצעות הנחיה קולית</string>
     <string name="toggle_continuous_title">האזנה רציפה</string>
-    <string name="toggle_continuous_subtitle">מפעיל האזנה תמידית ברקע לצורך זיהוי הנחיות אוטומטית (צורך הרבה סוללה)</string>
+    <string name="toggle_continuous_subtitle">מפעיל האזנה תמידית ברקע לצורך זיהוי הנחיות אוטומטית (צריכת סוללה גבוהה)</string>
     <string name="category_general">כללי</string>
     <string name="toggle_vad_title">עצירה אוטומטית בשקט</string>
     <string name="toggle_vad_subtitle">עצירת ההקלטה באופן אוטומטי כאשר מזוהה שקט</string>
     <string name="category_help">מידע</string>
     <string name="link_help_title">עזרה</string>
-    <string name="link_help_subtitle">מדריכים ופתרון בעיות נפוצות</string>
+    <string name="link_help_subtitle">מדריכים ופתרון בעיות</string>
     <string name="link_about_title">אודות</string>
     <string name="link_about_subtitle">מידע על האפליקציה</string>
     <string name="dialog_choose_language">בחר שפה</string>
@@ -304,6 +304,6 @@
     <string name="command_executing_dark_mode_on">מפעיל תצוגה כהה...</string>
     <string name="command_executing_dark_mode_off">מפעיל תצוגה בהירה...</string>
 
-    <string name="app_description">העוזר הקולי מאפשר לך לבצע הקלדה קולית ופעולות במכשיר באמצעות הנחיה קולית.</string>
+    <string name="app_description">העוזר קולי מאפשר לך לבצע הקלדה קולית ופעולות מהירות במכשיר באמצעות הנחיות קוליות.</string>
 
 </resources>
